@@ -12,14 +12,16 @@ import {
 } from "@react-email/components";
 
 /**
- * The waitlist confirmation. design.md voice: celebrate briefly, say what is
- * next, no jargon. One accent (apricot with ink text — white on apricot fails
- * contrast, same rule as the site), system fonts because webfonts in email are
- * unreliable, and everything important repeated in the plain-text part.
+ * The waitlist confirmation. Voice: celebrate briefly, say what is next, no
+ * jargon, no em dashes. One accent (apricot with ink text; white on apricot
+ * fails contrast, same rule as the site), system fonts because webfonts in
+ * email are unreliable, and everything important repeated in the plain-text
+ * part.
  */
 
 export interface WaitlistConfirmationProps {
-  firstName: string;
+  /** Optional: the form no longer asks for a name. */
+  firstName?: string | null;
   position: number;
   referralUrl: string;
   /** Display labels, e.g. ["Bitcoin", "Music"]. May be empty. */
@@ -33,6 +35,10 @@ const paper = "#fdf6ec";
 const apricot = "#ff6a3d";
 const edge = "#e8dccb";
 
+function greeting(firstName: string | null | undefined): string {
+  return firstName ? `${firstName}, you're in.` : "You're in.";
+}
+
 export function WaitlistConfirmation({
   firstName,
   position,
@@ -42,8 +48,8 @@ export function WaitlistConfirmation({
 }: WaitlistConfirmationProps) {
   const communityLine =
     communityLabels.length > 0
-      ? `We'll open the doors to ${formatList(communityLabels)} as those plazas come alive.`
-      : "We'll let you know as each plaza comes alive.";
+      ? `We'll open the doors to ${formatList(communityLabels)} as those maps come alive.`
+      : "We'll let you know as each map comes alive.";
 
   return (
     <Html lang="en">
@@ -66,7 +72,7 @@ export function WaitlistConfirmation({
           </Text>
 
           <Heading as="h1" style={{ color: ink, fontSize: 28, lineHeight: "34px", margin: "16px 0 0" }}>
-            {firstName}, you&apos;re in.
+            {greeting(firstName)}
           </Heading>
 
           <Section
@@ -83,8 +89,8 @@ export function WaitlistConfirmation({
           </Section>
 
           <Text style={{ color: inkMuted, fontSize: 16, lineHeight: "25px", margin: "0 0 16px" }}>
-            The first plaza — Bitcoin Culture Hub — opens to the waitlist in
-            order. {communityLine}
+            The first map, Bitcoin, opens to the waitlist in order.{" "}
+            {communityLine}
           </Text>
 
           <Hr style={{ borderColor: edge, margin: "24px 0" }} />
@@ -94,7 +100,7 @@ export function WaitlistConfirmation({
           </Heading>
 
           <Text style={{ color: inkMuted, fontSize: 16, lineHeight: "25px", margin: "0 0 12px" }}>
-            Every person who joins with your link moves you up the list — and
+            Every person who joins with your link moves you up the list, and
             means more of your people are already inside when you arrive.
           </Text>
 
@@ -109,7 +115,7 @@ export function WaitlistConfirmation({
 
           <Text style={{ color: inkMuted, fontSize: 14, lineHeight: "22px", margin: 0 }}>
             What happens next: we&apos;re building in the open. You&apos;ll hear
-            from us when your place is ready — and only about that.
+            from us when your place is ready, and only about that.
           </Text>
 
           <Hr style={{ borderColor: edge, margin: "24px 0" }} />
@@ -132,21 +138,21 @@ export function WaitlistConfirmation({
 export function waitlistConfirmationText(props: WaitlistConfirmationProps): string {
   const communityLine =
     props.communityLabels.length > 0
-      ? `We'll open the doors to ${formatList(props.communityLabels)} as those plazas come alive.`
-      : "We'll let you know as each plaza comes alive.";
+      ? `We'll open the doors to ${formatList(props.communityLabels)} as those maps come alive.`
+      : "We'll let you know as each map comes alive.";
 
   return [
-    `${props.firstName}, you're in.`,
+    greeting(props.firstName),
     "",
     `You're number ${props.position.toLocaleString("en-US")} in line on the Bitplaza waitlist.`,
     "",
-    `The first plaza — Bitcoin Culture Hub — opens to the waitlist in order. ${communityLine}`,
+    `The first map, Bitcoin, opens to the waitlist in order. ${communityLine}`,
     "",
     "Want in sooner? Bring your people.",
     "Every person who joins with your link moves you up the list:",
     props.referralUrl,
     "",
-    "What happens next: we're building in the open. You'll hear from us when your place is ready — and only about that.",
+    "What happens next: we're building in the open. You'll hear from us when your place is ready, and only about that.",
     "",
     `You received this because you joined the waitlist at ${props.siteUrl}. If that wasn't you, ignore this email and nothing further will be sent.`,
   ].join("\n");

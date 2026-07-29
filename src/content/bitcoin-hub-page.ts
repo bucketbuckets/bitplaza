@@ -1,54 +1,52 @@
+import { ROUTES } from "./site";
+
 /**
- * /bitcoin — the Bitcoin Culture Hub's own page. The space that drives
- * traffic from Bitplaza into the first plaza.
+ * /bitcoin — the first map's own page.
  *
  * OWNER NOTE: the specific launch material (real entries, dates, links to the
- * live hub once it has a URL) is coming later — swap it in HERE, in this
- * file, not in the components. Everything below is structural and honest as
- * written: taxonomy and paths are decided (bch/verticals/bitcoin.md), entry
- * counts are deliberately never quoted before the seed sprint has run.
+ * live hub once it has a URL) is coming later. Swap it in HERE, in this file,
+ * not in the components. Territory activity lines come from
+ * `src/content/hub-preview.ts` and are labeled illustrative until the seed
+ * sprint has run; entry counts are never claimed as live before then.
  *
- * This is the one page where Bitcoin's colour leads (design.md §16 district 7
- * / §8): as accents and marks, never as a ground behind text.
+ * This is the one page where Bitcoin's color leads (as accents and marks,
+ * never as a ground behind text).
  */
 export const BITCOIN_HUB_PAGE = {
   meta: {
-    title: "Bitcoin Culture Hub — the first plaza",
+    title: "Explore Bitcoin: the first open community map",
     description:
-      "One map of Bitcoin's people, projects, events, learning and work — every entry placed, marked for depth, and connected to what you should do next. The first plaza on Bitplaza.",
+      "One open map of the Bitcoin community: its people, knowledge, projects, events, and opportunities, marked for depth and connected to a concrete next step.",
   },
 
   hero: {
-    eyebrow: "The first plaza",
-    status: "Live first — the plaza Bitplaza opens with",
-    heading: "Bitcoin Culture Hub",
-    /** The community's own line, from bch/verticals/bitcoin.md. */
-    tagline: "The map of the rabbit hole.",
+    eyebrow: "The first map",
+    status: "Opening first, in stages, to the waitlist",
+    heading: "The Bitcoin map",
     supporting:
-      "Bitcoin's culture is the deepest on the internet — and the most scattered. The Culture Hub puts its people, projects, events, learning and work on one connected map, so wherever you are in the rabbit hole, you can see where to go next.",
+      "Bitcoin's culture is the deepest on the internet, and the most scattered. Bitplaza puts its people, projects, events, learning, and work on one connected map, so wherever you are, you can see where to go next.",
     primaryCta: { label: "Get early access", href: "/#waitlist" },
-    secondaryCta: { label: "How Bitplaza works", href: "/#pillars" },
+    secondaryCta: { label: "How Bitplaza works", href: ROUTES.home },
   },
 
-  /** design.md district 7's seven kinds of entry. Structure, not inventory —
-      no counts until the map has the entries to count. */
-  inside: {
-    heading: "What the map holds",
-    body: "Seven kinds of entry, all connected. Nothing lives in a silo — a person links to their projects, a project to its events, an event to what to read first.",
-    categories: [
-      { id: "people", name: "People", scope: "Builders, artists, educators, organizers — found by what they do" },
-      { id: "communities", name: "Communities", scope: "Meetups, collectives and circles with open doors" },
-      { id: "events", name: "Events", scope: "From conferences to the meetup near you, with real dates" },
-      { id: "learning", name: "Learning", scope: "The canon and the on-ramps, marked for depth" },
-      { id: "work", name: "Work", scope: "Jobs, bounties and open roles across the ecosystem" },
-      { id: "collectibles", name: "Collectibles", scope: "Art, artifacts and the market around them" },
-      { id: "projects", name: "Projects", scope: "What's being built, and where to jump in" },
-    ],
+  territories: {
+    heading: "Eleven territories",
+    body: "Every territory holds people, organizations, resources, events, and opportunities, with a marked place to start. Nothing lives in a silo: a person links to their projects, a project to its events, an event to what to read first.",
+  },
+
+  depth: {
+    heading: "Three depths",
+    body: "Every part of the map is marked for how far in it sits, so you can start where you actually are and go deeper on purpose.",
+  },
+
+  paths: {
+    heading: "Paths across the map",
+    body: "A path is a route to an outcome, not a course. Each one ends somewhere you can point at.",
   },
 
   closing: {
     heading: "Be there when the doors open.",
-    body: "The hub opens to the waitlist in order. Enter now, and arrive with your people already inside.",
-    cta: { label: "Request early access", href: "/#waitlist" },
+    body: "The Bitcoin map opens to the waitlist in order. Join now, and arrive with your people already inside.",
+    cta: { label: "Get early access", href: "/#waitlist" },
   },
 } as const;

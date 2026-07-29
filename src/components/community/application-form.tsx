@@ -7,8 +7,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox, FieldError, Input, Label, Select, Textarea } from "@/components/ui/field";
-import { COMMUNITY_BUILDERS_PAGE } from "@/content/community-builders-page";
+import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/field";
+import { COMMUNITIES_PAGE } from "@/content/communities-page";
 import { capture } from "@/lib/analytics/client";
 import { getAttribution } from "@/lib/attribution/capture";
 import {
@@ -18,9 +18,11 @@ import {
 import type { ApplicationResponse, ApplicationSuccess } from "@/lib/waitlist/types";
 
 /**
- * The community-builder application. Same §18 form rules and the same defence
+ * The community-leader application. Same form rules and the same defence
  * payload as the waitlist form; the one extra shape is `currentTools`, which
- * people type as a comma-separated line and the form splits before Zod sees it.
+ * people type as a comma-separated line and the form splits before Zod sees
+ * it. Consent is affirmed by submitting under the visible note, exactly as on
+ * the waitlist form.
  */
 
 const formSchema = communityApplicationSchema
@@ -32,7 +34,6 @@ const formSchema = communityApplicationSchema
     primaryProblem: true,
     plazaVision: true,
     website: true,
-    consent: true,
   })
   .extend({
     /** As typed; split into the array at submit time. */
@@ -51,7 +52,7 @@ export function splitTools(raw: string | undefined): string[] {
 }
 
 export function ApplicationForm() {
-  const CONTENT = COMMUNITY_BUILDERS_PAGE.form;
+  const CONTENT = COMMUNITIES_PAGE.form;
   const [result, setResult] = useState<ApplicationSuccess | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
@@ -113,9 +114,11 @@ export function ApplicationForm() {
           communitySize: values.communitySize,
           currentTools: splitTools(values.currentToolsRaw),
           primaryProblem: values.primaryProblem,
-          plazaVision: values.plazaVision,
+          plazaVision: values.plazaVision || undefined,
           website: values.website || undefined,
-          consent: values.consent,
+          // Submitting under the visible note IS the consent; the server
+          // still refuses a payload that does not affirm it.
+          consent: true,
           referralCode: attribution.ref,
           utmSource: attribution.utmSource,
           utmMedium: attribution.utmMedium,
@@ -127,7 +130,7 @@ export function ApplicationForm() {
       });
       response = (await res.json()) as ApplicationResponse;
     } catch {
-      setServerError("The request didn't go through — check your connection and try again.");
+      setServerError("The request didn't go through. Check your connection and try again.");
       return;
     }
 
@@ -155,11 +158,11 @@ export function ApplicationForm() {
           tabIndex={-1}
           className="font-display text-display-2 text-ink outline-none"
         >
-          {COMMUNITY_BUILDERS_PAGE.success.heading}
+          {COMMUNITIES_PAGE.success.heading}
         </h2>
-        <p className="mt-4 text-body-lg text-ink-muted">{COMMUNITY_BUILDERS_PAGE.success.body}</p>
+        <p className="mt-4 text-body-lg text-ink-muted">{COMMUNITIES_PAGE.success.body}</p>
         <p className="mt-3 text-ink-muted">
-          {COMMUNITY_BUILDERS_PAGE.success.positionLine(result.position)}
+          {COMMUNITIES_PAGE.success.positionLine(result.position)}
         </p>
       </div>
     );
@@ -191,8 +194,8 @@ export function ApplicationForm() {
         </div>
       )}
 
-      {/* Email leads, full width — same reasoning as the waitlist form: beside
-          "First name" it reads as a surname box. */}
+      {/* Email leads, full width — beside "First name" it reads as a surname
+          box, and the email IS the signup. */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="ca-email">{CONTENT.email.label}</Label>
         <Input
@@ -201,7 +204,7 @@ export function ApplicationForm() {
           inputMode="email"
           autoCapitalize="none"
           spellCheck={false}
-          placeholder="you@example.com"
+          placeholder={CONTENT.email.placeholder}
           autoComplete={CONTENT.email.autoComplete}
           aria-invalid={invalid("email")}
           aria-describedby={invalid("email") ? "ca-email-error" : undefined}
@@ -257,6 +260,22 @@ export function ApplicationForm() {
       </div>
 
       <div className="flex flex-col gap-2">
+        <Label htmlFor="ca-website" optional={CONTENT.website.optionalTag}>
+          {CONTENT.website.label}
+        </Label>
+        <Input
+          id="ca-website"
+          type="url"
+          inputMode="url"
+          placeholder="https://"
+          aria-invalid={invalid("website")}
+          aria-describedby={invalid("website") ? "ca-website-error" : undefined}
+          {...register("website")}
+        />
+        <FieldError id="ca-website-error">{errors.website?.message}</FieldError>
+      </div>
+
+      <div className="flex flex-col gap-2">
         <Label htmlFor="ca-currentTools">{CONTENT.currentTools.label}</Label>
         <Input
           id="ca-currentTools"
@@ -281,7 +300,9 @@ export function ApplicationForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="ca-plazaVision">{CONTENT.plazaVision.label}</Label>
+        <Label htmlFor="ca-plazaVision" optional={CONTENT.plazaVision.optionalTag}>
+          {CONTENT.plazaVision.label}
+        </Label>
         <Textarea
           id="ca-plazaVision"
           rows={3}
@@ -290,37 +311,6 @@ export function ApplicationForm() {
           {...register("plazaVision")}
         />
         <FieldError id="ca-plazaVision-error">{errors.plazaVision?.message}</FieldError>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="ca-website" optional={CONTENT.website.optionalTag}>
-          {CONTENT.website.label}
-        </Label>
-        <Input
-          id="ca-website"
-          type="url"
-          inputMode="url"
-          placeholder="https://"
-          aria-invalid={invalid("website")}
-          aria-describedby={invalid("website") ? "ca-website-error" : undefined}
-          {...register("website")}
-        />
-        <FieldError id="ca-website-error">{errors.website?.message}</FieldError>
-      </div>
-
-      <div className="flex items-start gap-3">
-        <Checkbox
-          id="ca-consent"
-          aria-invalid={invalid("consent")}
-          aria-describedby={invalid("consent") ? "ca-consent-error" : undefined}
-          {...register("consent")}
-        />
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="ca-consent" className="font-normal text-ink-muted">
-            {CONTENT.consent.label}
-          </Label>
-          <FieldError id="ca-consent-error">{errors.consent?.message}</FieldError>
-        </div>
       </div>
 
       <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
@@ -344,10 +334,11 @@ export function ApplicationForm() {
         />
       ) : null}
 
-      <div>
-        <Button type="submit" size="xl" disabled={isSubmitting}>
+      <div className="flex flex-col gap-3">
+        <Button type="submit" size="xl" disabled={isSubmitting} className="self-start">
           {isSubmitting ? CONTENT.submitting : CONTENT.submit}
         </Button>
+        <p className="measure-wide text-sm text-ink-faint">{CONTENT.consentNote}</p>
       </div>
     </form>
   );

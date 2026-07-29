@@ -33,7 +33,8 @@ model WaitlistUser {
   email              String   @unique
   /// As typed. Normalization must not destroy the address delivery needs.
   emailRaw           String
-  firstName          String
+  /// Optional since the email-first form; requested later, never required.
+  firstName          String?
   userType           UserType
   primaryGoal        String?
   /// Max 3, enforced in Zod and again server-side. text[] on purpose:

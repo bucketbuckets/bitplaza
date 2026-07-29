@@ -1,56 +1,62 @@
-import type { CommunityId } from "@/lib/communities";
-
 /**
- * The complete analytics catalogue. Twelve events, and nothing else.
+ * The complete analytics catalogue. Sixteen events, and nothing else.
  *
- * This is a closed map on purpose. `capture()` is typed against it, so an event
- * name that is not listed here is a compile error rather than a stray row in
- * PostHog that nobody can interpret six months later.
+ * This is a closed map on purpose. `capture()` is typed against it, so an
+ * event name that is not listed here is a compile error rather than a stray
+ * row in PostHog that nobody can interpret six months later. The taxonomy is
+ * documented in docs/02-analytics-events.md; keep the two in sync.
  *
  * Two rules bind every entry:
  *
  *   1. NO PII. Never an email, a name, a referral code, or free text the user
- *      typed. `tests/analytics.no-pii.test.ts` enforces this against the
- *      property names below; the reason it is a test and not a convention is
- *      that `plan.md` §11 rates a telemetry incident as unrecoverable for a
- *      public good, and this audience reads the source.
+ *      typed. `findForbiddenKeys` enforces this against the property names
+ *      below at runtime in development.
  *
- *   2. Properties are low-cardinality. Counts, enums and booleans — the shapes
- *      that survive aggregation. Anything unique to one person belongs in the
- *      database, not the event stream.
+ *   2. Properties are low-cardinality. Counts, enums and booleans — the
+ *      shapes that survive aggregation. Anything unique to one person belongs
+ *      in the database, not the event stream.
  */
 export interface EventMap {
   /** Fired once per route render, including client-side navigations. */
   page_view: { path: string };
 
+  /** The hero's two pathways. */
   hero_cta_clicked: { cta: "primary" | "secondary" };
 
-  /** The "Explore the vision" affordance, wherever it appears. */
-  vision_clicked: { location: "hero" | "nav" };
+  /** A goal chosen inside the interactive map preview. */
+  preview_engaged: { choice: "learn" | "build" | "meet" | "work" };
 
-  interest_selected: {
-    community: CommunityId;
-    action: "add" | "remove";
-    /** How many are selected AFTER this action. 0–3. */
-    selected_count: number;
-  };
+  /** A path card opened or expanded. `path_id` is the stable content id. */
+  path_selected: { path_id: string; location: "home" | "bitcoin" };
 
-  /** The third selection landed and the preview animated in. */
-  interest_preview_completed: { communities: CommunityId[] };
+  /** A territory opened in the hub preview or on /bitcoin. */
+  territory_opened: { territory_id: string; location: "home" | "bitcoin" };
 
+  /** Any "Map your community" action. */
+  leader_cta_clicked: { location: "header" | "hero" | "section" | "closing" | "footer" };
+
+  /** The waitlist form received focus or was navigated to with intent. */
   waitlist_started: {
-    source: "hero" | "nav" | "interest_preview" | "waitlist_section" | "footer";
-    /** Whether interests were carried in from the selector. */
-    prefilled: boolean;
+    source: "header" | "hero" | "closing" | "footer" | "bitcoin" | "direct";
   };
 
   waitlist_completed: {
     user_type: string;
-    community_count: number;
     has_referrer: boolean;
     /** True when the address was already on the list. */
     duplicate: boolean;
   };
+
+  /** A submission that did not result in success. No field contents, ever. */
+  waitlist_failed: { reason: "validation" | "network" | "server" };
+
+  /** The architecture page opened from a tracked link. */
+  architecture_link_clicked: { location: "section" | "footer" };
+
+  /** Only fires once a public repository link exists. */
+  repo_link_clicked: { location: "section" | "open_page" };
+
+  faq_opened: { question_id: string };
 
   referral_link_copied: { method: "button" | "keyboard" };
 
@@ -60,8 +66,6 @@ export interface EventMap {
   community_application_started: Record<string, never>;
 
   community_application_completed: { community_size: string };
-
-  faq_opened: { question_id: string };
 }
 
 export type EventName = keyof EventMap;

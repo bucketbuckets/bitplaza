@@ -2,68 +2,70 @@
  * Site-wide constants and structure.
  *
  * Rule for this whole directory: no copy lives in JSX, ever. Every headline,
- * label and answer is a typed constant here. It is the same discipline
- * `bch/plan.md` §6.5 imposes on the product ("no component contains a
- * vertical-specific string"), applied to the marketing site — and it is what
- * makes a copy review, a landing-page variant, or a second plaza's page cheap
- * instead of a refactor.
+ * label and answer is a typed constant here, which is what makes a copy
+ * review, a landing-page variant, or a second community's page cheap instead
+ * of a refactor.
  */
 
 export const SITE = {
   name: "Bitplaza",
   /** Used in <title> templates and the OG image. */
-  tagline: "Enter the communities that shape your life.",
+  tagline: "The Open Map for Communities",
   description:
-    "Bitplaza is an AI-powered network where people find their communities, build reputation and discover meaningful ways to participate.",
+    "Bitplaza brings a community's people, knowledge, projects, events, and opportunities into one open, navigable map. Start with Bitcoin.",
   /** Canonical origin. Set NEXT_PUBLIC_SITE_URL per environment. */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://bitplaza.com",
   locale: "en_US",
 } as const;
 
-/** The promise, used in the footer and the OG image. */
-export const BRAND_PROMISE = "Less noise. More belonging, progress and opportunity." as const;
-
-/**
- * Minimal navigation. Four items and one action — anything more competes with
- * the single conversion the page exists for.
- */
-export const NAV_LINKS = [
-  { href: "#pillars", label: "What it is" },
-  { href: "#plaza-builder", label: "Build your plaza" },
-  { href: "#bitcoin", label: "First plaza" },
-  { href: "#open", label: "How it's built" },
-  { href: "#faq", label: "Questions" },
-] as const;
+/** The one-line promise, used in the footer. */
+export const BRAND_PROMISE = "Every community deserves a map." as const;
 
 export const ROUTES = {
   home: "/",
-  bitcoinHub: "/bitcoin",
-  communityBuilders: "/for-community-builders",
+  bitcoin: "/bitcoin",
+  communities: "/communities",
+  open: "/open",
+  about: "/about",
+  questions: "/questions",
   privacy: "/privacy",
   terms: "/terms",
-  data: "/data",
 } as const;
+
+/**
+ * Four items and one action. Anything more competes with the two paths the
+ * site exists to offer: explore Bitcoin, or map your community.
+ */
+export const NAV_LINKS = [
+  { href: ROUTES.bitcoin, label: "Explore" },
+  { href: ROUTES.communities, label: "For communities" },
+  { href: ROUTES.open, label: "Open source" },
+  { href: ROUTES.about, label: "About" },
+] as const;
+
+/** The header's one action. Leaders are the conversion the header serves. */
+export const NAV_CTA = { href: ROUTES.communities, label: "Map your community" } as const;
 
 export const FOOTER_GROUPS = [
   {
+    heading: "Product",
+    links: [
+      { href: ROUTES.bitcoin, label: "Explore Bitcoin" },
+      { href: ROUTES.communities, label: "Map your community" },
+      { href: "/#waitlist", label: "Get early access" },
+    ],
+  },
+  {
     heading: "Bitplaza",
     links: [
-      { href: "#pillars", label: "What it is" },
-      { href: "#plaza-builder", label: "Build your plaza" },
-      { href: "#waitlist", label: "Request early access" },
+      { href: ROUTES.about, label: "About" },
+      { href: ROUTES.open, label: "Open architecture" },
+      { href: ROUTES.questions, label: "Questions" },
     ],
   },
   {
-    heading: "Communities",
+    heading: "Legal",
     links: [
-      { href: ROUTES.bitcoinHub, label: "Bitcoin Culture Hub" },
-      { href: ROUTES.communityBuilders, label: "Bring your community" },
-    ],
-  },
-  {
-    heading: "Openness",
-    links: [
-      { href: ROUTES.data, label: "What we collect" },
       { href: ROUTES.privacy, label: "Privacy" },
       { href: ROUTES.terms, label: "Terms" },
     ],
@@ -71,16 +73,8 @@ export const FOOTER_GROUPS = [
 ] as const;
 
 /**
- * The one-line version of the positioning resolved in docs §9.1.
- *
- * The map is open and belongs to everyone; the company builds the tools on top
- * of it. Both halves are stated because a reader who has seen the repo and a
- * reader who has seen the pitch must arrive at the same understanding.
- *
- * Note the tense: the foundation is described as an intention, not an existing
- * legal entity. `bch/plan.md` §12 action 2 still has the structure open, and
- * claiming a foundation that has not been formed is the kind of detail this
- * audience checks.
+ * The commercial position in one line, used in the footer. The map is open;
+ * the company charges operators for the tools built on top of it.
  */
 export const OPENNESS_LINE =
-  "The map belongs to everyone. The tools built on top of it are how we sustain building them." as const;
+  "The map is open. Bitplaza sustains itself by building the tools communities run on top of it." as const;

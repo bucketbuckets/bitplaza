@@ -33,7 +33,7 @@ export default function PrivacyPage() {
 
       <ProseSection heading="What you can rely on today">
         <p>
-          <Link href={ROUTES.data}>What we collect</Link> describes exactly what this site records,
+          <Link href={ROUTES.open}>The open page</Link> describes exactly what this site records,
           in plain language. It is accurate, and every claim in it corresponds to something you can
           find in the source: the list of events we send, the analytics configuration, and the
           opt-out.

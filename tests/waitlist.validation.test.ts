@@ -20,6 +20,12 @@ describe("waitlistSubmissionSchema", () => {
     expect(parsed.communities).toEqual(["bitcoin", "music"]);
   });
 
+  it("accepts a submission without a first name — the form no longer asks", () => {
+    const { firstName, ...rest } = valid;
+    void firstName;
+    expect(waitlistSubmissionSchema.safeParse(rest).success).toBe(true);
+  });
+
   it("accepts zero communities and exactly three", () => {
     expect(waitlistSubmissionSchema.safeParse({ ...valid, communities: [] }).success).toBe(true);
     expect(
@@ -97,13 +103,14 @@ describe("communityApplicationSchema", () => {
     expect(communityApplicationSchema.safeParse(validApp).success).toBe(true);
   });
 
-  it("requires the essay fields", () => {
+  it("requires the problem but not the vision", () => {
     expect(
       communityApplicationSchema.safeParse({ ...validApp, primaryProblem: "" }).success,
     ).toBe(false);
+    // plazaVision is optional: useful signal, not worth losing an application.
     expect(
-      communityApplicationSchema.safeParse({ ...validApp, plazaVision: "" }).success,
-    ).toBe(false);
+      communityApplicationSchema.safeParse({ ...validApp, plazaVision: undefined }).success,
+    ).toBe(true);
   });
 
   it("accepts an absent or empty website but rejects a non-URL", () => {

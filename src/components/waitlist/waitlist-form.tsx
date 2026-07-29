@@ -6,36 +6,38 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox, FieldError, Input, Label, Select, Textarea } from "@/components/ui/field";
+import { FieldError, Input, Label } from "@/components/ui/field";
 import { WAITLIST } from "@/content/waitlist";
 import { capture } from "@/lib/analytics/client";
 import { getAttribution } from "@/lib/attribution/capture";
-import { labelsFor } from "@/lib/communities";
 import {
-  USER_TYPE_OPTIONS,
+  GOAL_OPTIONS,
   waitlistFormSchema,
   type WaitlistFormValues,
 } from "@/lib/validation/waitlist";
-import { useSelectedCommunities } from "@/lib/waitlist/selection-store";
 import type { WaitlistResponse, WaitlistSuccess } from "@/lib/waitlist/types";
 
 /**
- * The waitlist form. design.md §18 "Form": labels always visible, errors via
- * aria-describedby + aria-invalid, an error summary that takes focus on a
- * failed submit, no animation, no characters.
+ * The waitlist form: a goal and an email, nothing else. Everything beyond
+ * those two is either attached invisibly (attribution, anti-bot fields,
+ * consent affirmed by submitting under the visible note) or asked after
+ * submission, per path, optionally.
  *
- * What travels with the visible fields: the selector's communities, captured
- * `?ref`/`utm_*` attribution, the honeypot (empty for every human), the
- * mount timestamp for the timing trap, and a Turnstile token when the site
- * key is configured. The server re-validates all of it.
+ * Form rules: labels always visible, errors via aria-describedby +
+ * aria-invalid, an error summary that takes focus on a failed submit, no
+ * animation. Field values survive every failure state.
  */
-export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSuccess) => void }) {
-  const selected = useSelectedCommunities();
+export function WaitlistForm({
+  onSuccess,
+}: {
+  onSuccess: (result: WaitlistSuccess, userType: string) => void;
+}) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
   const summaryRef = useRef<HTMLDivElement>(null);
   const nicknameRef = useRef<HTMLInputElement>(null);
   const startedAtRef = useRef<number>(0);
+  const startedEventFired = useRef(false);
 
   useEffect(() => {
     startedAtRef.current = Date.now();
@@ -50,9 +52,8 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
     formState: { errors, isSubmitting, submitCount },
   } = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistFormSchema),
-    defaultValues: { primaryGoal: "" },
-    // Validate as fields are left, not only at submit — a surname typed into
-    // the email box should be flagged while the person is still there.
+    // Validate as fields are left, not only at submit — a non-address typed
+    // into the email box should be flagged while the person is still there.
     mode: "onTouched",
   });
 
@@ -60,14 +61,20 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
     .map(([field, error]) => ({ field, message: error?.message }))
     .filter((e): e is { field: string; message: string } => Boolean(e.message));
 
-  // A failed submit moves focus to the summary — §18's "error summary on
-  // submit that moves focus". Field-level messages remain wired per input.
+  // A failed submit moves focus to the summary; field-level messages remain
+  // wired per input.
   useEffect(() => {
     if (submitCount > 0 && (fieldErrors.length > 0 || serverError)) {
       summaryRef.current?.focus();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submitCount, serverError]);
+
+  const onFirstInteraction = () => {
+    if (startedEventFired.current) return;
+    startedEventFired.current = true;
+    capture("waitlist_started", { source: "direct" });
+  };
 
   // Not wrapped in handleSubmit here: calling handleSubmit during render trips
   // react-hooks/refs (the callback reads refs). It is applied in onSubmit.
@@ -82,8 +89,9 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           ...values,
-          primaryGoal: values.primaryGoal || undefined,
-          communities: selected,
+          // Submitting under the visible note IS the consent; the server
+          // still refuses a payload that does not affirm it.
+          consent: true,
           referralCode: attribution.ref,
           utmSource: attribution.utmSource,
           utmMedium: attribution.utmMedium,
@@ -95,14 +103,16 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
       });
       response = (await res.json()) as WaitlistResponse;
     } catch {
-      setServerError("The request didn't go through — check your connection and try again.");
+      capture("waitlist_failed", { reason: "network" });
+      setServerError("The request didn't go through. Check your connection and try again.");
       return;
     }
 
     if (!response.ok) {
+      capture("waitlist_failed", { reason: "server" });
       if (response.fieldErrors) {
         for (const [field, message] of Object.entries(response.fieldErrors)) {
-          if (field === "email" || field === "firstName" || field === "userType" || field === "consent") {
+          if (field === "email" || field === "userType") {
             setError(field, { message });
           }
         }
@@ -113,7 +123,6 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
 
     capture("waitlist_completed", {
       user_type: values.userType,
-      community_count: selected.length,
       has_referrer: Boolean(attribution.ref),
       duplicate: response.duplicate,
     });
@@ -121,17 +130,17 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
       capture("referral_signup_completed", {});
     }
 
-    onSuccess(response);
+    onSuccess(response, values.userType);
   };
 
-  const describedBy = (field: string, hasError: boolean) =>
-    hasError ? `${field}-error` : undefined;
-
-  const selectedLabels = labelsFor(selected);
+  const onInvalid = () => {
+    capture("waitlist_failed", { reason: "validation" });
+  };
 
   return (
     <form
-      onSubmit={(event) => void handleSubmit(onValid)(event)}
+      onSubmit={(event) => void handleSubmit(onValid, onInvalid)(event)}
+      onFocus={onFirstInteraction}
       noValidate
       className="relative flex flex-col gap-6"
     >
@@ -152,97 +161,60 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
         </div>
       )}
 
-      {/* Email leads, alone on its row at full width. Paired beside "First
-          name" it read as a surname field — the one mistake this form cannot
-          afford, since the email IS the signup. */}
+      {/* The goal first: the path decides what happens after the email. Native
+          radios inside a fieldset, styled as cards; the input stays real for
+          keyboard and screen-reader behavior. */}
+      <fieldset
+        aria-describedby={errors.userType ? "wl-userType-error" : undefined}
+        className="flex flex-col gap-2"
+      >
+        <legend className="text-sm font-semibold text-ink">{WAITLIST.form.goal.legend}</legend>
+        <div className="mt-2 grid gap-3 sm:grid-cols-3">
+          {GOAL_OPTIONS.map((option) => (
+            <label
+              key={option.id}
+              className="group flex cursor-pointer flex-col gap-1 rounded-card border-[1.5px] border-edge bg-raised p-4 transition-colors hover:border-edge-strong has-checked:border-ink"
+            >
+              <span className="flex items-center gap-2.5">
+                <input
+                  type="radio"
+                  value={option.value}
+                  className="size-4 accent-[color:var(--color-apricot)]"
+                  {...register("userType")}
+                />
+                <span className="font-semibold text-ink">{option.label}</span>
+              </span>
+              <span className="pl-6.5 text-sm text-ink-muted">{option.hint}</span>
+            </label>
+          ))}
+        </div>
+        <FieldError id="wl-userType-error">{errors.userType?.message}</FieldError>
+      </fieldset>
+
       <div className="flex flex-col gap-2">
         <Label htmlFor="wl-email">{WAITLIST.form.email.label}</Label>
-        <Input
-          id="wl-email"
-          type="email"
-          inputMode="email"
-          autoCapitalize="none"
-          spellCheck={false}
-          placeholder={WAITLIST.form.email.placeholder}
-          autoComplete={WAITLIST.form.email.autoComplete}
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={describedBy("wl-email", Boolean(errors.email))}
-          {...register("email")}
-        />
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Input
+            id="wl-email"
+            type="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            placeholder={WAITLIST.form.email.placeholder}
+            autoComplete={WAITLIST.form.email.autoComplete}
+            className="sm:max-w-sm"
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "wl-email-error" : undefined}
+            {...register("email")}
+          />
+          <Button type="submit" size="lg" disabled={isSubmitting}>
+            {isSubmitting ? WAITLIST.form.submitting : WAITLIST.form.submit}
+          </Button>
+        </div>
         <FieldError id="wl-email-error">{errors.email?.message}</FieldError>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="wl-firstName">{WAITLIST.form.firstName.label}</Label>
-          <Input
-            id="wl-firstName"
-            autoComplete={WAITLIST.form.firstName.autoComplete}
-            aria-invalid={Boolean(errors.firstName)}
-            aria-describedby={describedBy("wl-firstName", Boolean(errors.firstName))}
-            {...register("firstName")}
-          />
-          <FieldError id="wl-firstName-error">{errors.firstName?.message}</FieldError>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="wl-userType">{WAITLIST.form.userType.label}</Label>
-          <Select
-            id="wl-userType"
-            defaultValue=""
-            aria-invalid={Boolean(errors.userType)}
-            aria-describedby={describedBy("wl-userType", Boolean(errors.userType))}
-            {...register("userType")}
-          >
-            <option value="" disabled>
-              {WAITLIST.form.userType.placeholder}
-            </option>
-            {USER_TYPE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-          <FieldError id="wl-userType-error">{errors.userType?.message}</FieldError>
-        </div>
-      </div>
-
-      {selectedLabels.length > 0 ? (
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-semibold text-ink">{WAITLIST.form.communitiesLegend}</p>
-          <p className="text-sm text-ink-muted">
-            {selectedLabels.join(" · ")}
-            <span className="text-ink-faint"> — {WAITLIST.form.communitiesFromSelector}</span>
-          </p>
-        </div>
-      ) : null}
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="wl-primaryGoal" optional={WAITLIST.form.primaryGoal.optionalTag}>
-          {WAITLIST.form.primaryGoal.label}
-        </Label>
-        <Textarea
-          id="wl-primaryGoal"
-          rows={2}
-          placeholder={WAITLIST.form.primaryGoal.placeholder}
-          {...register("primaryGoal")}
-        />
-      </div>
-
-      <div className="flex items-start gap-3">
-        <Checkbox
-          id="wl-consent"
-          aria-invalid={Boolean(errors.consent)}
-          aria-describedby={describedBy("wl-consent", Boolean(errors.consent))}
-          {...register("consent")}
-        />
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="wl-consent" className="font-normal text-ink-muted">
-            {WAITLIST.form.consent.label}
-          </Label>
-          <FieldError id="wl-consent-error">{errors.consent?.message}</FieldError>
-        </div>
-      </div>
+      <p className="measure-wide text-sm text-ink-faint">{WAITLIST.form.consentNote}</p>
 
       {/* Honeypot. Hidden from people and assistive tech alike; a submission
           that fills it was made by nothing human. */}
@@ -266,12 +238,6 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
           options={{ theme: "auto", size: "flexible" }}
         />
       ) : null}
-
-      <div>
-        <Button type="submit" size="xl" disabled={isSubmitting}>
-          {isSubmitting ? WAITLIST.form.submitting : WAITLIST.form.submit}
-        </Button>
-      </div>
     </form>
   );
 }

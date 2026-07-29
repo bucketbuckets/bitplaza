@@ -5,6 +5,11 @@ context. Read alongside `README.md` (commands, setup) and `design.md` (the
 authoritative visual spec). Where documents overlap, this one has the history
 and the reasoning; `design.md` has the decisions.
 
+> **Read §12 first.** The site was repositioned wholesale later this same day
+> ("the open map for communities", design.md v3.0). Sections 1–11 are accurate
+> history, but where they describe the *current* site or spec, §12 supersedes
+> them — §3 and §7A in particular describe a direction that no longer exists.
+
 ---
 
 ## 1. Where this came from
@@ -62,6 +67,11 @@ typecheck → lint → test → build; it passes at HEAD and is the gate for "do
 Integration tests need the Docker Postgres up (§10).
 
 ## 3. The design pivot — the single most important thing to know
+
+> **Superseded by §12:** design.md is now **v3.0** (the map narrative); the
+> v2.0 facts below stand only where §12 says the foundation survived (palette,
+> type, tokens, tests, the arch mark). The §16 districts, Regulars and
+> "Phases 2–4" are retired, not pending.
 
 The site was first built as **"Blue Hour"**: dark-first, Marcellus serif, a
 canvas of thin network lines (`PlazaField`). The user then requested a
@@ -180,6 +190,9 @@ leaves nothing hidden; deep links reveal correctly. 81 unit tests green.
 
 ## 7. Next steps, in order
 
+> **Superseded by §12:** A (Phase 2, the plaza world) is dead; B and C
+> shipped (§10); D's remaining items are restated at the end of §12.
+
 **A. Phase 2 — build the world** (design.md §16/§24; user has seen Phase 1 and
 not yet signed off on hero direction — confirm before deep investment):
 districts 2 (scattered→converge), 3 (portal field, `--radius-arch`, three
@@ -214,8 +227,8 @@ honest placeholders pending counsel — do not invent terms.
 
 ## 8. File map (beyond README's)
 
-- `design.md` — THE spec. §8 palette (measured), §16 homepage districts, §18
-  per-component specs, §23 anti-patterns, §24 phases + keep/retune/delete.
+- `design.md` — THE spec (now v3.0; see §12). v3 map: §6 color, §9
+  components, §13 data honesty, §14 CTA hierarchy, §16 anti-patterns.
 - `docs/00-audit-and-architecture.md` — audit; DB schema §4; testing plan §8;
   the four resolved decisions §9 (+ §9.1 what Mozilla-shape binds copy to).
 - `docs/01-design-system.md` — superseded; architecture reasoning only.
@@ -340,3 +353,65 @@ live, so per-channel conversion lands in the DB); channels in order — own
 X/Nostr with the built share loop, 3–5 Bitcoin newsletters/podcasts, meetup
 QR codes to /bitcoin, community-leaders page to organizers. PostHog key turns
 on funnel measurement across the 12 instrumented events.
+
+---
+
+## 12. Addendum — the v3.0 "open map" redesign (still 2026-07-29)
+
+A full repositioning pass from a new brief. **`design.md` is now v3.0** and is
+the only authoritative spec; §16's eight-district plaza narrative and the
+Regulars/colonnade apparatus are retired (palette, type, tokens, tests, and
+the arch mark all survive). Key facts for a resumer:
+
+- **Positioning:** "Every community deserves a map." Map metaphor
+  (territories, paths, depth) replaces the plaza-world. One depth vocabulary
+  everywhere: Start / Explore / Deepen. No em dashes in user-facing copy.
+- **Homepage:** hero with an interactive goal-driven map preview
+  (`src/components/map/map-preview.tsx`, mock data in
+  `src/content/map-preview.ts`, visibly labeled illustrative) → paths →
+  capabilities → hub preview (territory accordion) → AI → leaders → open →
+  closing + waitlist → FAQ (5 of 11).
+- **Routes:** `/communities` (leader page + application), `/open` (precise
+  openness + folded /data content), `/about`, `/questions` are new;
+  `/for-community-builders → /communities` and `/data → /open` are permanent
+  redirects in `next.config.ts`. `/bitcoin` rebuilt: 11 territories, 3
+  depths, 8 outcome paths.
+- **Waitlist is email-first:** goal (3 options mapping onto the existing
+  `UserType` enum — explore=COMMUNITY_MEMBER, map=COMMUNITY_LEADER,
+  contribute=BUILDER) + email. No name field (migration
+  `20260729174333_first_name_optional` made `firstName` nullable), no consent
+  checkbox (visible note; client sends `consent: true`; server contract
+  unchanged). Leader signups get a success-state pointer to
+  `/communities#apply`. `plazaVision` on the application is now optional.
+- **Analytics catalogue is 16 events** (see `docs/02-analytics-events.md`),
+  incl. preview_engaged, path_selected, territory_opened, leader_cta_clicked,
+  waitlist_failed, architecture_link_clicked, repo_link_clicked (reserved).
+  Interest-selector events and the selector itself are gone.
+- **Repo link rule:** `OPEN_SECTION.repoUrl` in `src/content/open.ts` is null
+  until the GitHub repo is public; the "View the code" button renders nothing
+  while it is null. Set it when the repo flips public.
+- **Header CTA is deliberately secondary-styled.** The brief made "Map your
+  community" the header's one action; it is rendered as an outline pill so the
+  hero's "Explore Bitcoin" keeps the single apricot accent per viewport
+  (design.md v3 §6 rule 1). Do not "fix" it back to a filled primary.
+- **Verified at HEAD of this work:** `npm run verify` (typecheck → lint → 147
+  tests → build) exits 0; all routes prerender static; a Playwright sweep of
+  all six pages at 1440/390/320 found zero horizontal overflow and zero
+  console errors; a live smoke test against the production build confirmed
+  both 308 redirects and a name-less signup (email + goal only) landing as a
+  row with `firstName = NULL`, then was deleted. Stale `.next/dev` artifacts
+  can fail typecheck after route deletions — `rm -rf .next` first. Beware:
+  `npm run verify | tail` masks the exit code; check `$?` unpiped.
+- **The work is UNCOMMITTED** — ~80 changed files sitting in the working tree
+  on `main` (the owner has not asked for a commit yet). Nothing else changed:
+  no new dependencies, no new env vars, one additive migration
+  (`20260729174333_first_name_optional`, already applied to the local Docker
+  DB; production Neon still does not exist). `README.md` and this file were
+  updated; `docs/00` and `docs/01` are historical.
+- **Launch gap is unchanged from §11:** domain + Vercel + Neon, Resend +
+  SPF/DKIM/DMARC (start early), Turnstile + PostHog keys, the referral-advance
+  policy decision, plus the buildable items: OG/social card, favicon set,
+  sitemap + robots, Lighthouse run, keyboard-funnel e2e. New since §11: flip
+  the GitHub repo public and set `OPEN_SECTION.repoUrl`, and review the
+  `/open` and `/about` copy (both make openness claims the owner should read
+  before traffic arrives).

@@ -1,21 +1,18 @@
 "use client";
 
 import { Container } from "@/components/layout/container";
-import { Colonnade } from "@/components/plaza/colonnade";
+import { MapPreview } from "@/components/map/map-preview";
 import { Button } from "@/components/ui/button";
 import { HERO } from "@/content/hero";
 import { capture } from "@/lib/analytics/client";
 
 /**
- * District 1 — Enter Bitplaza. design.md §16.
+ * The hero: one idea and a working preview of the product, both inside the
+ * first viewport. Copy left, the interactive map right; on mobile the copy
+ * leads and the preview follows immediately after the actions.
  *
- * The composition is deliberately NOT the left-headline-plus-right-graphic
- * startup layout §15 rules out. The headline sits high and left at signage
- * scale; the colonnade runs full-bleed across the lower half as ground the copy
- * stands on, not as an illustration beside it.
- *
- * Everything here is static. Ambient drift is CSS, so the district renders
- * complete with no JavaScript — which is the Phase 1 exit gate.
+ * Static apart from the preview's own state. The section renders complete
+ * with no JavaScript.
  */
 export function Hero() {
   return (
@@ -23,72 +20,57 @@ export function Hero() {
       {/* Paper grain, so the large cream field is not a flat CSS colour. */}
       <div className="grain pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
 
-      <Container>
-        <div className="relative z-10 flex flex-col gap-6 pt-14 sm:pt-20 lg:pt-24">
-          <p className="eyebrow text-apricot-ink">{HERO.eyebrow}</p>
+      <Container width="wide">
+        <div className="grid gap-10 pt-14 pb-16 sm:pt-20 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16 lg:pb-24">
+          <div className="flex flex-col gap-6">
+            <p className="eyebrow text-apricot-ink">{HERO.eyebrow}</p>
 
-          {/* Expanded width is the typographic signature — used once, here, at
-              the largest size on the site. Lines are authored, not wrapped. */}
-          <h1
-            id="hero-heading"
-            className="font-display text-display-hero text-ink"
-            style={{ fontStretch: "112%", fontWeight: 800, letterSpacing: "-0.035em" }}
-          >
-            {HERO.headline.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-          </h1>
+            {/* Expanded width is the typographic signature — used once, here,
+                at the largest size on the site. Lines are authored, not
+                wrapped. */}
+            <h1
+              id="hero-heading"
+              className="font-display text-display-1 text-ink xl:text-[4.25rem]"
+              style={{ fontStretch: "112%", fontWeight: 800, letterSpacing: "-0.03em" }}
+            >
+              {HERO.headline.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </h1>
 
-          <p className="measure-wide text-body-lg text-ink-muted">{HERO.supporting}</p>
+            <p className="measure text-body-lg text-ink-muted">{HERO.supporting}</p>
 
-          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <Button asChild size="xl">
-              <a
-                href={HERO.primaryCta.href}
-                onClick={() => capture("hero_cta_clicked", { cta: "primary" })}
-              >
-                {HERO.primaryCta.label}
-              </a>
-            </Button>
+            <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button asChild size="lg">
+                <a
+                  href={HERO.primaryCta.href}
+                  onClick={() => capture("hero_cta_clicked", { cta: "primary" })}
+                >
+                  {HERO.primaryCta.label}
+                </a>
+              </Button>
 
-            <Button asChild size="xl" variant="secondary">
-              <a
-                href={HERO.secondaryCta.href}
-                onClick={() => {
-                  capture("hero_cta_clicked", { cta: "secondary" });
-                  capture("waitlist_started", { source: "hero", prefilled: false });
-                }}
-              >
-                {HERO.secondaryCta.label}
-              </a>
-            </Button>
+              <Button asChild size="lg" variant="secondary">
+                <a
+                  href={HERO.secondaryCta.href}
+                  onClick={() => {
+                    capture("hero_cta_clicked", { cta: "secondary" });
+                    capture("leader_cta_clicked", { location: "hero" });
+                  }}
+                >
+                  {HERO.secondaryCta.label}
+                </a>
+              </Button>
+            </div>
 
-            <Button asChild variant="link" className="sm:ml-2">
-              <a
-                href={HERO.tertiaryCta.href}
-                onClick={() => capture("vision_clicked", { location: "hero" })}
-              >
-                {HERO.tertiaryCta.label}
-              </a>
-            </Button>
+            <p className="font-mono text-sm text-ink-faint">{HERO.trustLine}</p>
           </div>
 
-          <p className="font-mono text-sm text-ink-faint">{HERO.trustLine}</p>
+          <MapPreview />
         </div>
       </Container>
-
-      {/* The plaza itself — full-bleed and wider than the container, sitting on
-          the bottom edge so the arches read as architecture rather than as a
-          picture of architecture. The height is bounded in rem, not vh: it must
-          share the first viewport with the headline, and a vh-sized band is
-          what pushed it below the fold. */}
-      <div className="relative mt-10 sm:mt-12">
-        <Colonnade className="h-48 w-[125%] max-w-none -translate-x-[12%] sm:h-60 sm:w-[112%] sm:-translate-x-[6%] lg:h-72 lg:w-full lg:translate-x-0" />
-      </div>
-
-      <span className="sr-only">{HERO.sceneLabel}</span>
     </section>
   );
 }

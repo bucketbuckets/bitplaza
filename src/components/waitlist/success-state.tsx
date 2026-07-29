@@ -14,7 +14,14 @@ import type { WaitlistSuccess } from "@/lib/waitlist/types";
  * briefly, hand over the referral link, make sharing one tap, then ask the
  * one research question as a gift, not a gate.
  */
-export function SuccessState({ result }: { result: WaitlistSuccess }) {
+export function SuccessState({
+  result,
+  leader = false,
+}: {
+  result: WaitlistSuccess;
+  /** True when the chosen goal was mapping a community. */
+  leader?: boolean;
+}) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -69,6 +76,22 @@ export function SuccessState({ result }: { result: WaitlistSuccess }) {
           <p className="mt-2 text-ink-muted">{WAITLIST.success.emailNote}</p>
         ) : null}
       </div>
+
+      {leader ? (
+        <div className="rounded-card border border-edge bg-raised p-6 shadow-soft sm:p-8">
+          <p className="font-display text-heading-1 text-ink">
+            {WAITLIST.success.leaderNext.heading}
+          </p>
+          <p className="mt-2 text-ink-muted">{WAITLIST.success.leaderNext.body}</p>
+          <div className="mt-5">
+            <Button asChild size="lg">
+              <a href={WAITLIST.success.leaderNext.cta.href}>
+                {WAITLIST.success.leaderNext.cta.label}
+              </a>
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="rounded-card border border-edge bg-raised p-6 shadow-soft sm:p-8">
         <p className="font-display text-heading-1 text-ink">{WAITLIST.success.share.heading}</p>

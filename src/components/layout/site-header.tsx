@@ -8,11 +8,15 @@ import { useEffect, useState } from "react";
 import { Container } from "./container";
 import { Wordmark } from "./wordmark";
 import { capture } from "@/lib/analytics/client";
-import { NAV_LINKS, ROUTES } from "@/content/site";
+import { NAV_CTA, NAV_LINKS, ROUTES } from "@/content/site";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 
+/**
+ * The header: four page links and one action. The appearance control lives in
+ * the footer and the mobile menu, never in prime navigation space.
+ */
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,8 +28,8 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  function openWaitlist(source: "nav" | "footer") {
-    capture("waitlist_started", { source, prefilled: false });
+  function onLeaderCta() {
+    capture("leader_cta_clicked", { location: "header" });
     setMenuOpen(false);
   }
 
@@ -38,7 +42,7 @@ export function SiteHeader() {
           : "border-b border-transparent bg-transparent",
       )}
     >
-      <Container>
+      <Container width="wide">
         <div className="flex h-16 items-center justify-between gap-4 sm:h-18">
           <Link
             href={ROUTES.home}
@@ -53,23 +57,26 @@ export function SiteHeader() {
             <ul className="flex items-center gap-1">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a
+                  <Link
                     href={link.href}
                     className="rounded-pill px-3 py-2 text-sm text-ink-muted transition-colors hover:text-ink"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Owner call: the light/dark control lives in the header too. */}
             <ThemeToggle className="hidden sm:inline-flex" />
-            <Button asChild size="sm" className="hidden sm:inline-flex">
-              <a href="#waitlist" onClick={() => openWaitlist("nav")}>
-                Request early access
-              </a>
+            {/* Secondary on purpose: the hero's primary owns the accent in the
+                first viewport. The header offers the action; it does not shout. */}
+            <Button asChild size="sm" variant="secondary" className="hidden sm:inline-flex">
+              <Link href={NAV_CTA.href} onClick={onLeaderCta}>
+                {NAV_CTA.label}
+              </Link>
             </Button>
 
             <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
@@ -108,13 +115,13 @@ export function SiteHeader() {
                     <ul className="flex flex-col gap-1">
                       {NAV_LINKS.map((link) => (
                         <li key={link.href}>
-                          <a
+                          <Link
                             href={link.href}
                             onClick={() => setMenuOpen(false)}
                             className="flex min-h-12 items-center rounded-card px-3 text-base text-ink"
                           >
                             {link.label}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -123,9 +130,9 @@ export function SiteHeader() {
                   <div className="mt-6 flex items-center justify-between gap-3">
                     <ThemeToggle />
                     <Button asChild size="sm">
-                      <a href="#waitlist" onClick={() => openWaitlist("nav")}>
-                        Request early access
-                      </a>
+                      <Link href={NAV_CTA.href} onClick={onLeaderCta}>
+                        {NAV_CTA.label}
+                      </Link>
                     </Button>
                   </div>
                 </Dialog.Content>

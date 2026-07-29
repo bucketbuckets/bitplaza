@@ -113,7 +113,7 @@ export async function POST(request: Request): Promise<NextResponse<ApplicationRe
         communitySize: data.communitySize,
         currentTools: data.currentTools,
         primaryProblem: data.primaryProblem,
-        plazaVision: data.plazaVision,
+        plazaVision: data.plazaVision ?? "",
         website: data.website || null,
       },
       update: {
@@ -121,14 +121,15 @@ export async function POST(request: Request): Promise<NextResponse<ApplicationRe
         communitySize: data.communitySize,
         currentTools: data.currentTools,
         primaryProblem: data.primaryProblem,
-        plazaVision: data.plazaVision,
+        plazaVision: data.plazaVision ?? "",
         website: data.website || null,
       },
     });
 
     if (!existingApplication) {
+      // The form's name, not the row's: an email-first signup may hold null.
       const emailProps = {
-        firstName: user.firstName,
+        firstName: data.firstName,
         communityName: data.communityName,
         siteUrl: SITE.url,
       };

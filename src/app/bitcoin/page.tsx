@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
 
-import { DepthBlock, DomainsGrid, PathsBlock } from "@/components/bitcoin/hub-details";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
-import { BITCOIN_HUB } from "@/content/bitcoin-hub";
 import { BITCOIN_HUB_PAGE } from "@/content/bitcoin-hub-page";
+import {
+  DATA_DISCLAIMER,
+  DEPTH_LEVELS,
+  TERRITORIES,
+} from "@/content/hub-preview";
+import { FEATURED_PATHS, MORE_PATHS } from "@/content/paths";
 
 /**
- * /bitcoin — the Bitcoin Culture Hub's page: the doorway Bitplaza sends
- * traffic through into the first plaza. design.md §16 district 7: tangible
- * and immediately explorable; Bitcoin's orange leads HERE and nowhere else,
- * as marks and accents — never as a ground behind text (it fails contrast
- * with both ink roles at text sizes below display).
+ * /bitcoin — the first map's page: a real preview, not a homepage copy.
+ * Server-rendered and static. Bitcoin's orange leads HERE and nowhere else,
+ * as marks and accents, never as a ground behind text.
  *
- * Copy comes from content/bitcoin-hub{,-page}.ts. The owner's specific launch
- * material lands in those files, not here.
+ * Copy comes from content modules. The owner's launch material lands there,
+ * not here.
  */
 
 export const metadata: Metadata = {
@@ -22,10 +24,10 @@ export const metadata: Metadata = {
   description: BITCOIN_HUB_PAGE.meta.description,
 };
 
-const bitcoinText = "var(--color-c-bitcoin-text)";
+const ALL_PATHS = [...FEATURED_PATHS, ...MORE_PATHS];
 
-export default function BitcoinHubPage() {
-  const { hero, inside, closing } = BITCOIN_HUB_PAGE;
+export default function BitcoinPage() {
+  const { hero, territories, depth, paths, closing } = BITCOIN_HUB_PAGE;
 
   return (
     <article>
@@ -34,22 +36,18 @@ export default function BitcoinHubPage() {
         <div className="grain pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
         <Container>
           <div className="flex flex-col gap-5">
-            <p className="eyebrow flex items-center gap-2.5" style={{ color: bitcoinText }}>
+            <p className="eyebrow flex items-center gap-2.5 text-c-bitcoin-text">
               <span aria-hidden="true" className="inline-block size-2 rounded-full bg-c-bitcoin" />
               {hero.eyebrow}
             </p>
 
             <h1 className="font-display text-display-1 text-ink">{hero.heading}</h1>
 
-            <p className="font-display text-xl sm:text-2xl" style={{ color: bitcoinText }}>
-              {hero.tagline}
-            </p>
-
             <p className="measure-wide text-body-lg text-ink-muted">{hero.supporting}</p>
 
             <p className="font-mono text-sm text-ink-faint">{hero.status}</p>
 
-            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Button asChild size="lg">
                 <a href={hero.primaryCta.href}>{hero.primaryCta.label}</a>
               </Button>
@@ -61,53 +59,76 @@ export default function BitcoinHubPage() {
         </Container>
       </header>
 
-      {/* ── What the map holds ──────────────────────────────────────── */}
-      <section aria-labelledby="bh-inside" className="py-16 sm:py-24">
+      {/* ── Territories ─────────────────────────────────────────────── */}
+      <section aria-labelledby="bh-territories" className="py-16 sm:py-24">
         <Container>
           <div className="flex flex-col gap-4">
-            <h2 id="bh-inside" className="font-display text-display-2 text-ink">
-              {inside.heading}
+            <h2 id="bh-territories" className="font-display text-display-2 text-ink">
+              {territories.heading}
             </h2>
-            <p className="measure-wide text-lg leading-relaxed text-ink-muted">{inside.body}</p>
+            <p className="measure-wide text-lg leading-relaxed text-ink-muted">
+              {territories.body}
+            </p>
           </div>
-          <ul className="mt-10 flex flex-wrap gap-3">
-            {inside.categories.map((category) => (
-              <li
-                key={category.id}
-                className="flex min-h-12 items-center gap-3 rounded-pill border-[1.5px] border-edge-strong px-5 py-2"
-              >
-                <span className="font-semibold text-ink">{category.name}</span>
-                <span className="text-sm text-ink-muted">{category.scope}</span>
+
+          <ul className="mt-10 grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-2 lg:grid-cols-3">
+            {TERRITORIES.map((territory) => (
+              <li key={territory.id} className="flex flex-col gap-2 bg-paper p-5 sm:p-6">
+                <h3 className="text-[0.9375rem] font-semibold text-ink">{territory.name}</h3>
+                <p className="font-mono text-sm text-ink-muted" data-numeric>
+                  {territory.activity}
+                </p>
+                <p className="text-sm text-ink-faint">{territory.start}</p>
               </li>
             ))}
           </ul>
+
+          <p className="mt-4 font-mono text-xs text-ink-faint">{DATA_DISCLAIMER}</p>
         </Container>
       </section>
 
-      {/* ── The twelve domains ──────────────────────────────────────── */}
-      <section aria-labelledby="bh-domains" className="border-t border-edge py-16 sm:py-24">
+      {/* ── Depth ───────────────────────────────────────────────────── */}
+      <section aria-labelledby="bh-depth" className="border-t border-edge py-16 sm:py-24">
         <Container>
           <div className="flex flex-col gap-4">
-            <h2 id="bh-domains" className="font-display text-display-2 text-ink">
-              Twelve territories
+            <h2 id="bh-depth" className="font-display text-display-2 text-ink">
+              {depth.heading}
             </h2>
-            <p className="measure-wide text-lg leading-relaxed text-ink-muted">
-              {BITCOIN_HUB.lead}
-            </p>
+            <p className="measure-wide text-lg leading-relaxed text-ink-muted">{depth.body}</p>
           </div>
-          <div className="mt-10">
-            <DomainsGrid />
-          </div>
+          <ol className="mt-10 grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-3">
+            {DEPTH_LEVELS.map((level, i) => (
+              <li key={level.id} className="flex flex-col gap-2 bg-paper p-6">
+                <div className="flex items-baseline gap-3">
+                  <span className="eyebrow text-ink-faint" data-numeric aria-hidden="true">
+                    {`0${i + 1}`}
+                  </span>
+                  <span className="font-display text-lg text-ink">{level.label}</span>
+                </div>
+                <p className="text-sm leading-relaxed text-ink-muted">{level.meaning}</p>
+              </li>
+            ))}
+          </ol>
         </Container>
       </section>
 
-      {/* ── Depth and paths ─────────────────────────────────────────── */}
-      <section aria-label={BITCOIN_HUB.depth.heading} className="border-t border-edge py-16 sm:py-24">
+      {/* ── Paths ───────────────────────────────────────────────────── */}
+      <section aria-labelledby="bh-paths" className="border-t border-edge py-16 sm:py-24">
         <Container>
-          <DepthBlock headingLevel="h2" />
-          <div className="mt-16">
-            <PathsBlock headingLevel="h2" />
+          <div className="flex flex-col gap-4">
+            <h2 id="bh-paths" className="font-display text-display-2 text-ink">
+              {paths.heading}
+            </h2>
+            <p className="measure-wide text-lg leading-relaxed text-ink-muted">{paths.body}</p>
           </div>
+          <ul className="mt-10 grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-2 lg:grid-cols-4">
+            {ALL_PATHS.map((path) => (
+              <li key={path.id} className="flex flex-col gap-1.5 bg-paper p-6">
+                <h3 className="text-[0.9375rem] font-semibold text-ink">{path.name}</h3>
+                <p className="text-sm leading-relaxed text-ink-muted">{path.outcome}</p>
+              </li>
+            ))}
+          </ul>
         </Container>
       </section>
 

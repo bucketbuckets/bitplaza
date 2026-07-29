@@ -30,18 +30,41 @@ export const USER_TYPE_OPTIONS: readonly { value: UserTypeValue; label: string }
   { value: "INVESTOR_PARTNER", label: "Investor or partner" },
 ];
 
+/**
+ * The waitlist form's one question. Each goal maps onto the existing
+ * UserType enum so the database and export need no new column. `id` is the
+ * value analytics may see; the enum value is what the API stores.
+ */
+export const GOAL_OPTIONS = [
+  {
+    id: "explore",
+    value: "COMMUNITY_MEMBER",
+    label: "Explore Bitcoin",
+    hint: "Be first into the map when it opens.",
+  },
+  {
+    id: "map",
+    value: "COMMUNITY_LEADER",
+    label: "Map a community",
+    hint: "You run one and want it navigable.",
+  },
+  {
+    id: "contribute",
+    value: "BUILDER",
+    label: "Contribute to Bitplaza",
+    hint: "Build, review, or improve the map.",
+  },
+] as const satisfies readonly { id: string; value: UserTypeValue; label: string; hint: string }[];
+
 const email = z
   .string()
   .trim()
   .min(1, "Enter your email address.")
   .max(254, "That email address is too long.")
-  .email("That doesn't look like an email address — check for typos.");
+  .email("That doesn't look like an email address. Check for typos.");
 
-const firstName = z
-  .string()
-  .trim()
-  .min(1, "Tell us what to call you.")
-  .max(80, "Keep it under 80 characters.");
+/** Optional since the form asks for it only after signup, if ever. */
+const firstName = z.string().trim().max(80, "Keep it under 80 characters.").optional();
 
 const communities = z
   .array(z.enum(COMMUNITY_IDS))
@@ -55,12 +78,16 @@ const shortText = (max: number) => z.string().trim().max(max).optional();
  * Everything the browser sends to POST /api/waitlist. The anti-bot fields
  * (`nickname` honeypot, `startedAt` timing) are part of the contract on
  * purpose: the server decides what they mean, the schema only shapes them.
+ *
+ * `consent` stays in the contract as an explicit boolean the client sets by
+ * submitting: the form carries a visible consent note instead of a checkbox,
+ * and the server still refuses a payload that does not affirm it.
  */
 export const waitlistSubmissionSchema = z.object({
   email,
   firstName,
   userType: z.enum(USER_TYPES, {
-    errorMap: () => ({ message: "Choose the option closest to you." }),
+    errorMap: () => ({ message: "Choose what you want to do." }),
   }),
   communities,
   primaryGoal: shortText(500),
@@ -85,10 +112,7 @@ export type WaitlistSubmission = z.infer<typeof waitlistSubmissionSchema>;
 /** The fields react-hook-form owns; the rest is attached at submit time. */
 export const waitlistFormSchema = waitlistSubmissionSchema.pick({
   email: true,
-  firstName: true,
   userType: true,
-  primaryGoal: true,
-  consent: true,
 });
 
 export type WaitlistFormValues = z.infer<typeof waitlistFormSchema>;
@@ -102,7 +126,11 @@ export const COMMUNITY_SIZE_OPTIONS = [
 
 export const communityApplicationSchema = z.object({
   email,
-  firstName,
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "Tell us what to call you.")
+    .max(80, "Keep it under 80 characters."),
   communityName: z
     .string()
     .trim()
@@ -120,11 +148,8 @@ export const communityApplicationSchema = z.object({
     .trim()
     .min(1, "Tell us the problem you most want solved.")
     .max(1000, "Keep it under 1,000 characters."),
-  plazaVision: z
-    .string()
-    .trim()
-    .min(1, "Tell us what your plaza would make possible.")
-    .max(1000, "Keep it under 1,000 characters."),
+  /** Optional: useful signal, but not worth losing an application over. */
+  plazaVision: z.string().trim().max(1000, "Keep it under 1,000 characters.").optional(),
   website: z
     .string()
     .trim()

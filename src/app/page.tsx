@@ -1,27 +1,22 @@
-import { BitcoinHub } from "@/components/sections/bitcoin-hub";
-import { CommunityBuilders } from "@/components/sections/community-builders";
+import { AiNavigation } from "@/components/sections/ai-navigation";
+import { Capabilities } from "@/components/sections/capabilities";
+import { Closing } from "@/components/sections/closing";
 import { Faq } from "@/components/sections/faq";
 import { Hero } from "@/components/sections/hero";
-import { OpenInfrastructure } from "@/components/sections/open-infrastructure";
-import { Pillars } from "@/components/sections/pillars";
-import { PlazaBuilder } from "@/components/sections/plaza-builder";
-import { Problem } from "@/components/sections/problem";
-import { UseCases } from "@/components/sections/use-cases";
-import { WaitlistSection } from "@/components/sections/waitlist-section";
+import { HubPreview } from "@/components/sections/hub-preview";
+import { Leaders } from "@/components/sections/leaders";
+import { OpenArchitecture } from "@/components/sections/open-architecture";
+import { Paths } from "@/components/sections/paths";
 import { FaqSchema } from "@/components/seo/faq-schema";
 import { OrganizationSchema } from "@/components/seo/organization-schema";
 
 /**
- * The landing page.
+ * The landing page: one narrative in eight bands.
  *
- * A server component composing sections in the brief's order. Bands alternate
- * ground and surface so the page reads as a sequence of places rather than one
- * long scroll — the spatial metaphor doing structural work.
- *
- * Still to land in Stage 4, in their marked positions: the "What would your
- * Bitplaza look like?" interest selector (#plaza-builder, between Pillars and
- * BitcoinHub) and the segmented waitlist (#waitlist, between CommunityBuilders
- * and Faq).
+ * The community exists (hero, with the product shown) → paths beat feeds →
+ * what you can do → the first map → AI as navigation → the leader offer →
+ * the map stays open → the two pathways and the email capture, then the FAQ.
+ * Every band proves part of that narrative or it is not here.
  */
 export default function HomePage() {
   return (
@@ -30,14 +25,13 @@ export default function HomePage() {
       <FaqSchema />
 
       <Hero />
-      <Problem />
-      <Pillars />
-      <PlazaBuilder />
-      <BitcoinHub />
-      <UseCases />
-      <OpenInfrastructure />
-      <CommunityBuilders />
-      <WaitlistSection />
+      <Paths />
+      <Capabilities />
+      <HubPreview />
+      <AiNavigation />
+      <Leaders />
+      <OpenArchitecture />
+      <Closing />
       <Faq />
     </>
   );

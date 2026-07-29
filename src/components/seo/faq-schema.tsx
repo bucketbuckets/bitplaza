@@ -1,4 +1,4 @@
-import { FAQ } from "@/content/faq";
+import { HOME_FAQ, type FaqItem } from "@/content/faq";
 
 /**
  * FAQPage structured data.
@@ -10,11 +10,11 @@ import { FAQ } from "@/content/faq";
  * Only questions actually rendered on the page are included, which is the
  * condition Google's guidelines put on FAQ rich results.
  */
-export function FaqSchema() {
+export function FaqSchema({ items = HOME_FAQ }: { items?: readonly FaqItem[] }) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQ.map((item) => ({
+    mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: { "@type": "Answer", text: item.answer },

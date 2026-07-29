@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "./container";
 import { Wordmark } from "./wordmark";
 import { AnalyticsOptOut } from "@/components/analytics/analytics-opt-out";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { BRAND_PROMISE, FOOTER_GROUPS, OPENNESS_LINE } from "@/content/site";
 
 export function SiteFooter() {
@@ -15,7 +16,6 @@ export function SiteFooter() {
           <div className="flex flex-col gap-5">
             <Wordmark />
             <p className="font-display text-xl leading-snug text-ink measure">{BRAND_PROMISE}</p>
-            {/* The positioning resolved in docs §9.1, stated once, plainly. */}
             <p className="max-w-sm text-sm leading-relaxed text-ink-muted">{OPENNESS_LINE}</p>
           </div>
 
@@ -26,7 +26,7 @@ export function SiteFooter() {
                 <ul className="flex flex-col gap-2.5">
                   {group.links.map((link) => (
                     <li key={link.href}>
-                      {link.href.startsWith("#") ? (
+                      {link.href.includes("#") ? (
                         <a
                           href={link.href}
                           className="inline-block py-1 text-sm text-ink-muted transition-colors hover:text-ink"
@@ -51,9 +51,13 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-4 border-t border-edge py-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-ink-faint">
-            © {year} Bitplaza. Starting with Bitcoin. Built for every meaningful community.
+            © {year} Bitplaza. Starting with Bitcoin. Built for every community.
           </p>
-          <AnalyticsOptOut />
+          <div className="flex flex-wrap items-center gap-4">
+            <AnalyticsOptOut />
+            {/* The one appearance control on the page, per the navigation rule. */}
+            <ThemeToggle />
+          </div>
         </div>
       </Container>
     </footer>

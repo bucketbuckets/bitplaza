@@ -1,8 +1,10 @@
 # Bitplaza — launch site and waitlist
 
-> Enter the communities that shape your life.
+> Every community deserves a map.
 
-The marketing site and segmented waitlist for Bitplaza. Deliberately **separate
+The marketing site and waitlist for Bitplaza, the open map for communities.
+`design.md` (v3.0) is the authoritative design spec;
+`docs/02-analytics-events.md` documents the event taxonomy. Deliberately **separate
 from the Culture Hub product codebase** (`../bch/plan.md`), which is Vite +
 FastAPI — see `docs/00-audit-and-architecture.md` §2.1 for why, and what that
 buys and costs.

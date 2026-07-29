@@ -434,6 +434,26 @@
   }
 }
 
+/* Radix accordion open/close. Height is the one property Radix animates via
+   its measured CSS variable; both zero out under reduced motion with the rest. */
+@keyframes faq-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes faq-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
 /* ═══ AMBIENT DRIFT ════════════════════════════════════════════════════
    The plaza is inhabited, so things move — slowly, and only a few pixels.
    Three desynchronised phases so the composition never pulses in unison,

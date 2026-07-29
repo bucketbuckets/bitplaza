@@ -23,7 +23,7 @@ import { normalizeEmail } from "./normalize-email";
 
 export interface SignupInput {
   email: string;
-  firstName: string;
+  firstName?: string;
   userType: UserType;
   communities: string[];
   primaryGoal?: string;
@@ -74,7 +74,7 @@ export async function createOrReturnWaitlistUser(input: SignupInput): Promise<Si
           data: {
             email,
             emailRaw: input.email.trim(),
-            firstName: input.firstName,
+            firstName: input.firstName || null,
             userType: input.userType,
             communities: input.communities,
             primaryGoal: input.primaryGoal || null,

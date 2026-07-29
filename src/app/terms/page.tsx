@@ -41,7 +41,7 @@ export default function TermsPage() {
 
       <ProseSection heading="What happens to what you told us">
         <p>
-          <Link href={ROUTES.data}>What we collect</Link> covers it. Short version: we keep what you
+          <Link href={ROUTES.open}>The open page</Link> covers it. Short version: we keep what you
           typed, we do not sell it, and you can have it deleted by asking.
         </p>
       </ProseSection>
