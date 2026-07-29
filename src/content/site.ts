@@ -37,6 +37,7 @@ export const NAV_LINKS = [
 
 export const ROUTES = {
   home: "/",
+  bitcoinHub: "/bitcoin",
   communityBuilders: "/for-community-builders",
   privacy: "/privacy",
   terms: "/terms",
@@ -55,7 +56,7 @@ export const FOOTER_GROUPS = [
   {
     heading: "Communities",
     links: [
-      { href: "#bitcoin", label: "Bitcoin Culture Hub" },
+      { href: ROUTES.bitcoinHub, label: "Bitcoin Culture Hub" },
       { href: ROUTES.communityBuilders, label: "Bring your community" },
     ],
   },

@@ -76,7 +76,7 @@ export function ApplicationForm() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting, submitCount },
-  } = useForm<FormValues>({ resolver: zodResolver(formSchema) });
+  } = useForm<FormValues>({ resolver: zodResolver(formSchema), mode: "onTouched" });
 
   const fieldErrors = Object.entries(errors)
     .map(([field, error]) => ({ field, message: error?.message }))
@@ -191,31 +191,35 @@ export function ApplicationForm() {
         </div>
       )}
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="ca-firstName">{CONTENT.firstName.label}</Label>
-          <Input
-            id="ca-firstName"
-            autoComplete={CONTENT.firstName.autoComplete}
-            aria-invalid={invalid("firstName")}
-            aria-describedby={invalid("firstName") ? "ca-firstName-error" : undefined}
-            {...register("firstName")}
-          />
-          <FieldError id="ca-firstName-error">{errors.firstName?.message}</FieldError>
-        </div>
+      {/* Email leads, full width — same reasoning as the waitlist form: beside
+          "First name" it reads as a surname box. */}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="ca-email">{CONTENT.email.label}</Label>
+        <Input
+          id="ca-email"
+          type="email"
+          inputMode="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          placeholder="you@example.com"
+          autoComplete={CONTENT.email.autoComplete}
+          aria-invalid={invalid("email")}
+          aria-describedby={invalid("email") ? "ca-email-error" : undefined}
+          {...register("email")}
+        />
+        <FieldError id="ca-email-error">{errors.email?.message}</FieldError>
+      </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="ca-email">{CONTENT.email.label}</Label>
-          <Input
-            id="ca-email"
-            type="email"
-            autoComplete={CONTENT.email.autoComplete}
-            aria-invalid={invalid("email")}
-            aria-describedby={invalid("email") ? "ca-email-error" : undefined}
-            {...register("email")}
-          />
-          <FieldError id="ca-email-error">{errors.email?.message}</FieldError>
-        </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="ca-firstName">{CONTENT.firstName.label}</Label>
+        <Input
+          id="ca-firstName"
+          autoComplete={CONTENT.firstName.autoComplete}
+          aria-invalid={invalid("firstName")}
+          aria-describedby={invalid("firstName") ? "ca-firstName-error" : undefined}
+          {...register("firstName")}
+        />
+        <FieldError id="ca-firstName-error">{errors.firstName?.message}</FieldError>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">

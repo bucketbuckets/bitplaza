@@ -25,7 +25,7 @@ function mockFetch(response: unknown, status = 201) {
 
 async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/first name/i), "Tom");
-  await user.type(screen.getByLabelText(/^email$/i), "tom@example.com");
+  await user.type(screen.getByLabelText(/^your email$/i), "tom@example.com");
   await user.selectOptions(screen.getByLabelText(/closest to you/i), "COMMUNITY_MEMBER");
   await user.click(screen.getByRole("checkbox"));
 }
@@ -52,7 +52,7 @@ describe("WaitlistForm", () => {
     expect(fetchMock).not.toHaveBeenCalled();
 
     // Field-level wiring: the email input points at its own error message.
-    const email = screen.getByLabelText(/^email$/i);
+    const email = screen.getByLabelText(/^your email$/i);
     expect(email).toHaveAttribute("aria-invalid", "true");
     expect(email).toHaveAttribute("aria-describedby", "wl-email-error");
   });

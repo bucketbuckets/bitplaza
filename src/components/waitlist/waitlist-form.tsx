@@ -51,6 +51,9 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
   } = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistFormSchema),
     defaultValues: { primaryGoal: "" },
+    // Validate as fields are left, not only at submit — a surname typed into
+    // the email box should be flagged while the person is still there.
+    mode: "onTouched",
   });
 
   const fieldErrors = Object.entries(errors)
@@ -149,6 +152,26 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
         </div>
       )}
 
+      {/* Email leads, alone on its row at full width. Paired beside "First
+          name" it read as a surname field — the one mistake this form cannot
+          afford, since the email IS the signup. */}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="wl-email">{WAITLIST.form.email.label}</Label>
+        <Input
+          id="wl-email"
+          type="email"
+          inputMode="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          placeholder={WAITLIST.form.email.placeholder}
+          autoComplete={WAITLIST.form.email.autoComplete}
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={describedBy("wl-email", Boolean(errors.email))}
+          {...register("email")}
+        />
+        <FieldError id="wl-email-error">{errors.email?.message}</FieldError>
+      </div>
+
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="wl-firstName">{WAITLIST.form.firstName.label}</Label>
@@ -163,38 +186,25 @@ export function WaitlistForm({ onSuccess }: { onSuccess: (result: WaitlistSucces
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="wl-email">{WAITLIST.form.email.label}</Label>
-          <Input
-            id="wl-email"
-            type="email"
-            autoComplete={WAITLIST.form.email.autoComplete}
-            aria-invalid={Boolean(errors.email)}
-            aria-describedby={describedBy("wl-email", Boolean(errors.email))}
-            {...register("email")}
-          />
-          <FieldError id="wl-email-error">{errors.email?.message}</FieldError>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="wl-userType">{WAITLIST.form.userType.label}</Label>
-        <Select
-          id="wl-userType"
-          defaultValue=""
-          aria-invalid={Boolean(errors.userType)}
-          aria-describedby={describedBy("wl-userType", Boolean(errors.userType))}
-          {...register("userType")}
-        >
-          <option value="" disabled>
-            {WAITLIST.form.userType.placeholder}
-          </option>
-          {USER_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
+          <Label htmlFor="wl-userType">{WAITLIST.form.userType.label}</Label>
+          <Select
+            id="wl-userType"
+            defaultValue=""
+            aria-invalid={Boolean(errors.userType)}
+            aria-describedby={describedBy("wl-userType", Boolean(errors.userType))}
+            {...register("userType")}
+          >
+            <option value="" disabled>
+              {WAITLIST.form.userType.placeholder}
             </option>
-          ))}
-        </Select>
-        <FieldError id="wl-userType-error">{errors.userType?.message}</FieldError>
+            {USER_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <FieldError id="wl-userType-error">{errors.userType?.message}</FieldError>
+        </div>
       </div>
 
       {selectedLabels.length > 0 ? (

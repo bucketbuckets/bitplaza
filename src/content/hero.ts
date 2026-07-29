@@ -20,7 +20,7 @@ export const HERO = {
   supporting:
     "Enter the communities you care about, and everything worth doing next — without depending on one closed platform.",
 
-  primaryCta: { label: "Enter the first plaza", href: "#bitcoin" },
+  primaryCta: { label: "Enter the first plaza", href: "/bitcoin" },
   secondaryCta: { label: "Request early access", href: "#waitlist" },
   tertiaryCta: { label: "See how it works", href: "#pillars" },
 

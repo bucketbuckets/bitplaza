@@ -1,5 +1,7 @@
+import { DepthBlock, DomainsGrid, PathsBlock } from "@/components/bitcoin/hub-details";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
+import { Button } from "@/components/ui/button";
 import { BITCOIN_HUB } from "@/content/bitcoin-hub";
 
 /**
@@ -14,6 +16,9 @@ import { BITCOIN_HUB } from "@/content/bitcoin-hub";
  * what makes this section credible to the reader who knows the subject, and a
  * vague gesture at "twelve territories" would read as though the taxonomy did
  * not exist yet. It does — see bch/verticals/bitcoin.md §2.
+ *
+ * The detail blocks live in components/bitcoin/hub-details.tsx, shared with
+ * /bitcoin — the hub's own page, which this section's CTA routes into.
  */
 export function BitcoinHub() {
   return (
@@ -36,62 +41,26 @@ export function BitcoinHub() {
 
         {/* Twelve domains. Dense on purpose — the density is the argument. */}
         <Reveal className="mt-14">
-          <ul className="grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-2 lg:grid-cols-3">
-            {BITCOIN_HUB.domains.map((domain) => (
-              <li key={domain.id} className="flex flex-col gap-1.5 bg-paper p-5 sm:p-6">
-                <h3 className="text-[0.9375rem] font-semibold text-ink">{domain.name}</h3>
-                <p className="text-sm leading-relaxed text-ink-faint">{domain.scope}</p>
-              </li>
-            ))}
-          </ul>
+          <DomainsGrid />
         </Reveal>
 
         {/* Depth and paths each run full width rather than sitting side by
             side. Three items beside six left roughly a screen of dead space in
             the shorter column, and the depth levels are a progression — reading
             them left to right says something a stacked list does not. */}
-        <Reveal className="mt-16 flex flex-col gap-5">
-          <h3 className="font-display text-2xl text-ink">{BITCOIN_HUB.depth.heading}</h3>
-          <p className="measure-wide text-[0.9375rem] leading-relaxed text-ink-muted">
-            {BITCOIN_HUB.depth.body}
-          </p>
-          <ol className="grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-3">
-            {BITCOIN_HUB.depth.levels.map((level, i) => (
-              <li key={level.id} className="flex flex-col gap-2 bg-paper p-6">
-                <div className="flex items-baseline gap-3">
-                  {/* Depth IS sequential, so a numeric marker encodes something
-                      true here — unlike on the pillars, where it would not. */}
-                  <span className="eyebrow text-ink-faint" data-numeric aria-hidden="true">
-                    {`L${i + 1}`}
-                  </span>
-                  <span className="font-display text-lg text-ink">{level.label}</span>
-                </div>
-                <p className="text-sm leading-relaxed text-ink-muted">{level.meaning}</p>
-              </li>
-            ))}
-          </ol>
-        </Reveal>
-
-        <Reveal className="mt-14 flex flex-col gap-5">
-          <h3 className="font-display text-2xl text-ink">{BITCOIN_HUB.paths.heading}</h3>
-          <p className="measure-wide text-[0.9375rem] leading-relaxed text-ink-muted">
-            {BITCOIN_HUB.paths.body}
-          </p>
-          <ul className="grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-2 lg:grid-cols-3">
-            {BITCOIN_HUB.paths.items.map((path) => (
-              <li key={path.id} className="flex flex-col gap-1.5 bg-paper p-6">
-                <h4 className="text-[0.9375rem] font-semibold text-ink">{path.name}</h4>
-                <p className="text-sm leading-relaxed text-ink-muted">
-                  <span className="text-ink-faint">Ends when — </span>
-                  {path.end}
-                </p>
-              </li>
-            ))}
-          </ul>
+        <Reveal className="mt-16">
+          <DepthBlock />
         </Reveal>
 
         <Reveal className="mt-14">
+          <PathsBlock />
+        </Reveal>
+
+        <Reveal className="mt-14 flex flex-col items-start gap-6">
           <p className="measure-wide text-lg leading-relaxed text-ink-muted">{BITCOIN_HUB.closing}</p>
+          <Button asChild size="lg">
+            <a href={BITCOIN_HUB.cta.href}>{BITCOIN_HUB.cta.label}</a>
+          </Button>
         </Reveal>
       </Container>
     </section>

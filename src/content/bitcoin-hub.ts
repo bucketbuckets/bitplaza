@@ -64,4 +64,7 @@ export const BITCOIN_HUB = {
   /** The honest framing of what "first" means, per the positioning decision. */
   closing:
     "The architecture underneath is not Bitcoin-specific. The same map works for any community deep enough to get lost in — which is why Bitcoin is the first plaza rather than the whole product.",
+
+  /** design.md district 7's one action. Routes to the hub's own page. */
+  cta: { label: "Explore the first plaza", href: "/bitcoin" },
 } as const;

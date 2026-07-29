@@ -12,7 +12,13 @@ export const WAITLIST = {
 
   form: {
     firstName: { label: "First name", autoComplete: "given-name" },
-    email: { label: "Email", autoComplete: "email" },
+    email: {
+      label: "Your email",
+      autoComplete: "email",
+      /** A placeholder shaped like an address, so the field cannot be read as
+          a second name box (a tester typed their surname into it). */
+      placeholder: "you@example.com",
+    },
     userType: {
       label: "Which is closest to you?",
       placeholder: "Choose one…",
