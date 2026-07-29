@@ -12,7 +12,9 @@ and the reasoning; `design.md` has the decisions.
 > longer exists. §13 records the Vercel deployment (the site is live at
 > https://bitplaza.vercel.app, but production has no working database yet).
 > §14 records the launch-requirements build (OG/icons/sitemap/robots/e2e/
-> Lighthouse/copy review) and the owner-run deploy that bakes it all.
+> Lighthouse/copy review) and the owner-run deploy that bakes it all. §15
+> records the security review, the repo going PUBLIC (+ AGPL-3.0 LICENSE), and
+> the two must-fix-before-traffic highs.
 
 ---
 
@@ -566,3 +568,88 @@ files above, commit them first. DNS was re-checked this session: still
 Namecheap parking (registrar-servers NS, parking A record) — §13's records
 still need setting. Launch order otherwise unchanged from §13, minus
 everything now built.
+
+---
+
+## 15. Addendum — security review; repo is PUBLIC + AGPL-3.0 (still 2026-07-29)
+
+A 14-agent adversarial security review ran (independent secret recon → 6
+dimensions × find/verify → synthesis; results in the session transcript).
+**Verdict: `safe_to_go_public: true`.** The gating question — does any secret
+live in a tracked file or in git history — was answered independently: NO real
+`DATABASE_URL`/`DIRECT_URL`, Resend `re_` key, PostHog `phc_` key,
+`TURNSTILE_SECRET_KEY`, `ADMIN_EXPORT_TOKEN`, JWT, or private key exists in
+source, docs, or any of the 11 commits. `.env*`/`.vercel`/
+`.claude/settings.local.json` are gitignored and were never committed;
+`.env.template` ships blank. Every finding across all six dimensions is
+`gates_public: false`.
+
+**Done this session:**
+
+- **Repo flipped PUBLIC** — `gh repo edit bucketbuckets/bitplaza --visibility
+  public --accept-visibility-change-consequences`; confirmed `isPrivate:false`.
+- **`LICENSE` added** — canonical GNU AGPL-3.0 text (the signed-off license,
+  docs/00 §9.1), committed + pushed. Without it a public repo is
+  all-rights-reserved, contradicting the open positioning and the site's
+  AGPL-3.0 copy. GitHub's `licenseInfo` detector lags a few minutes behind the
+  push.
+
+**PUBLIC ≠ open-to-traffic.** Publishing the repo exposed no secret, but the
+review found two real **must-fix-before-real-traffic** highs (they do NOT gate
+the repo flip; they gate opening the forms to the public):
+
+1. **Rate-limit key trusts the spoofable leftmost `X-Forwarded-For`**
+   (`src/lib/security/rate-limit.ts:22-31`). `clientIp()` returns
+   `xff.split(",")[0]`; on Vercel XFF is always present so the trustworthy
+   `x-real-ip` branch is dead code. An attacker sending a fresh random XFF per
+   request lands in a new `sha256(ip:route)` counter every time → the
+   10/10min cap on all three POST routes never trips. This neutralizes the
+   master throttle and turns the mediums below into UNBOUNDED abuse. **Fix:**
+   use Vercel's `x-real-ip` / `@vercel/functions` `ipAddress()` as primary;
+   trust XFF only behind a proxy allowlist.
+2. **Turnstile fails open** (`src/lib/security/turnstile.ts:21,29-40`) — returns
+   `true` when unset (line 21), on any Cloudflare non-200 (29-33), and on
+   timeout/exception (37-40). `turnstileConfigured()` is defined but called
+   nowhere, so a missing key is silent. **Fix:** fail closed in production
+   (assert the key at boot / reject when unset) and reject-not-allow on
+   Cloudflare errors. NOTE: failing closed means forms hard-fail until
+   `TURNSTILE_SECRET_KEY` is set on Vercel — an owner decision, tied to the
+   §13 Turnstile-key task.
+
+**Confirmed mediums (defense-in-depth; unbounded once #1 lands):** referral
+counts are **farmable** (increment at insert, only gmail self-referral guard —
+`signup.ts:58-70`); waitlist/community forms are an **unsolicited-email relay**
+(every signup emails an unverified address — burns Resend/DMARC reputation —
+`waitlist/route.ts:112-126`). Fix both with double-opt-in / email verification
+before counting a referral or sending the positional email.
+
+**Confirmed lows (hardening backlog, none exploitable today):** no app-level
+security headers (no CSP/X-Frame-Options/nosniff/Referrer-Policy —
+`next.config.ts`, would need a nonce for the inline theme script);
+`research-response` uses the public referral code as a write credential with no
+anti-bot gate + a non-transactional 5-row cap (TOCTOU); advisory-only 32KB body
+guard (trusts Content-Length); JSON-LD `dangerouslySetInnerHTML` without
+escaping (latent, all inputs static today); Resend error logging can echo the
+recipient email (PII) to server logs; the analytics forbidden-key guard is
+dev-only (`analytics/client.ts:69`); admin CSV export has no rate-limit/lockout
+on its Bearer credential; the IP "hash" is an unsalted sha256 (pseudonymous,
+not the "one-way" the /open page claims — ephemeral, pruned ~20min).
+
+**Explicitly cleared (positive findings):** no mass-assignment (explicit Prisma
+field lists), no SQLi (only parameterized `$queryRaw`), no ReDoS (all fields
+`.max()`-bounded, no nested quantifiers), no SSRF (the community `website` is
+never fetched/rendered), no open-redirect, no cookies, email-send failure
+cannot roll back a signup, all routes return fixed generic 500s. **Next.js:
+stay on 16.2.12** — it is the latest stable and the npm-audit criticals/highs
+trace to a dev-only nested `next@15.1.2` under `react-email` (never on the
+request path); the cache-poisoning / image-optimization / dev-origin CVEs are
+both out-of-range for 16.2.12 and structurally unreachable (POST routes
+dynamic, sole GET is `no-store`, no `next/image`, no middleware).
+
+**Open follow-ups now unblocked by the public flip:** set
+`OPEN_SECTION.repoUrl` in `src/content/open.ts` to
+`https://github.com/bucketbuckets/bitplaza` (makes the "View the code" button
+render). The homepage "The code is public" blocker (§14) is now TRUE (public +
+AGPL LICENSE); the /open + FAQ **dataset** claims ("is published under CC
+BY-SA") are still overstated — nothing is published yet — and still need the
+tense pass from §14's copy review.
