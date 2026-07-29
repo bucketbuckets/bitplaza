@@ -83,6 +83,7 @@ const VAR_FOR = {
   edge: "--bp-edge",
   edgeStrong: "--bp-edge-strong",
   focus: "--bp-focus",
+  danger: "--bp-danger",
 } as const;
 
 describe("globals.css matches design-tokens.ts", () => {

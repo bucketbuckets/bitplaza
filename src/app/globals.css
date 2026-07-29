@@ -41,6 +41,7 @@
   --bp-edge: #e4d9c8;
   --bp-edge-strong: #c9b9a2;
   --bp-focus: #2440e0;        /*  6.4:1 — needs 3:1 */
+  --bp-danger: #b3261e;       /*  5.7:1 worst case  AA — form errors as text */
 
   /* Warm-tinted shadows. Neutral grey shadows on a cream ground read dirty. */
   --bp-shadow-contact: 0 1px 2px rgb(70 45 25 / 0.08);
@@ -88,6 +89,7 @@
     --bp-edge: #382c24;
     --bp-edge-strong: #544236;
     --bp-focus: #ff9166;      /*  7.0:1 */
+    --bp-danger: #ff8d82;     /*  7.0:1 worst case  AAA */
 
     --bp-shadow-contact: 0 1px 2px rgb(0 0 0 / 0.4);
     --bp-shadow-soft: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
@@ -130,6 +132,7 @@
   --bp-edge: #382c24;
   --bp-edge-strong: #544236;
   --bp-focus: #ff9166;
+  --bp-danger: #ff8d82;
   --bp-shadow-contact: 0 1px 2px rgb(0 0 0 / 0.4);
   --bp-shadow-soft: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
   --bp-shadow-lift: 0 4px 8px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.6);
@@ -167,6 +170,7 @@
   --bp-edge: #e4d9c8;
   --bp-edge-strong: #c9b9a2;
   --bp-focus: #2440e0;
+  --bp-danger: #b3261e;
   --bp-shadow-contact: 0 1px 2px rgb(70 45 25 / 0.08);
   --bp-shadow-soft: 0 2px 4px rgb(70 45 25 / 0.06), 0 8px 24px -8px rgb(70 45 25 / 0.14);
   --bp-shadow-lift: 0 4px 8px rgb(70 45 25 / 0.08), 0 16px 40px -12px rgb(70 45 25 / 0.2);
@@ -210,6 +214,7 @@
   --color-edge: var(--bp-edge);
   --color-edge-strong: var(--bp-edge-strong);
   --color-focus: var(--bp-focus);
+  --color-danger: var(--bp-danger);
 
   /* Community FILLS are absolute — a community's colour is its identity and
      must not shift with the viewer's theme. Only the TEXT variant adapts. */

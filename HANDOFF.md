@@ -225,3 +225,47 @@ A dev server may be running on :3000 (`lsof -ti:3000 | xargs kill` to stop).
 Screenshots/audit scripts lived in an ephemeral scratchpad — **gone after this
 session**; re-create from the patterns in git history (they were never
 committed). Nothing in the repo depends on them.
+
+---
+
+## 10. Addendum — Stage 4/5 shipped (later on 2026-07-29)
+
+§5's "NOT verified / not built" list is now largely stale. In this session:
+
+- **Database exists.** `prisma/schema.prisma` built from docs/00 §4 (all four
+  models incl. the deltas), initial migration applied. Local dev + integration
+  tests run against Docker (`bitplaza-pg`, postgres:16-alpine, **port 5433**);
+  `.env` (gitignored) points at it. Neon still not provisioned — production
+  needs it, plus Resend/Turnstile/PostHog keys per `.env.template`.
+- **Waitlist is live end-to-end**: interest selector (#plaza-builder, roving
+  tabindex, max 3, shared store) → deterministic preview (labelled
+  illustrative) → form (#waitlist, RHF+Zod shared schemas) → `/api/waitlist`
+  (rate limit in Postgres w/ hashed keys → honeypot+timing w/ deterministic
+  decoy success → Turnstile pass-open when unconfigured → Zod → Gmail-only
+  normalization → upsert-returns-existing → referral attribution in one
+  transaction) → success state with referral link, copy, X/native share, and
+  the optional research question (`/api/research-response`, keyed by referral
+  code, capped 5/user).
+- **`/for-community-builders` built** (was a 404): application form +
+  `/api/community-application` (same defence chain; upsert revises).
+- **Email**: `emails/*.tsx` React Email + `lib/email/send.ts`. Failures logged
+  and swallowed — proven by integration tests that mock `resend` to throw on
+  every send. Inert without `RESEND_API_KEY`. Path alias `@emails/*` added.
+- **CSV export**: `/api/admin/export`, Bearer + timingSafeEqual, streams,
+  formula-injection-safe (`lib/waitlist/csv.ts`).
+- **New `--bp-danger` token** (form errors), added in all four palette blocks +
+  `@theme inline` + design-tokens.ts + sync-test VAR_FOR, AA-checked in
+  `tests/tokens.danger.test.ts`.
+- Nav/footer anchors un-commented in `site.ts`. AttributionCapture (cookie-free
+  `?ref`/`utm_*` → sessionStorage) mounted in layout.
+- **156 tests green** (was 81) incl. `tests/api.waitlist.integration.test.ts`
+  against the real local Postgres; `npm run verify` passes; production build
+  smoke-tested by hand (signup 201 / duplicate 200 / honeypot decoy, no row).
+- Gotcha found: the react-hooks lint rejects `handleSubmit(cb)` called during
+  render when `cb` reads refs — apply it inside `onSubmit` instead. And
+  `vitest.setup.ts` must guard `window` (node-env integration tests).
+
+Still open: Neon + Vercel + DNS/Resend verification, OG image/favicons/
+sitemap/robots, e2e Playwright specs, Lighthouse, referral "moves you up the
+list" copy implies an admission-order policy — referralCount is recorded, the
+policy itself is a launch-ops decision.

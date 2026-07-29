@@ -38,6 +38,8 @@ export interface ThemeTokens {
   edge: string;
   edgeStrong: string;
   focus: string;
+  /** Form errors as text. Worst-case AA on every ground in its mode. */
+  danger: string;
 }
 
 export const THEMES: Record<ThemeName, ThemeTokens> = {
@@ -59,6 +61,7 @@ export const THEMES: Record<ThemeName, ThemeTokens> = {
     edge: "#e4d9c8",
     edgeStrong: "#c9b9a2",
     focus: "#2440e0",
+    danger: "#b3261e",
   },
   dark: {
     paper: "#17120f",
@@ -78,6 +81,7 @@ export const THEMES: Record<ThemeName, ThemeTokens> = {
     edge: "#382c24",
     edgeStrong: "#544236",
     focus: "#ff9166",
+    danger: "#ff8d82",
   },
 };
 

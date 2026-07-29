@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
+import { AttributionCapture } from "@/components/attribution/attribution-capture";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { RevealObserver } from "@/components/motion/reveal-observer";
@@ -107,6 +108,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         <AnalyticsProvider>
+          {/* Reads ?ref and utm_* into sessionStorage on first load, so a
+              referral survives the scroll to the form without a cookie. */}
+          <AttributionCapture />
           <RevealObserver />
           <SiteHeader />
           <main id="main" className="flex-1">

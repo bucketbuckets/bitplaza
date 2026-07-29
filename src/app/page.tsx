@@ -4,8 +4,10 @@ import { Faq } from "@/components/sections/faq";
 import { Hero } from "@/components/sections/hero";
 import { OpenInfrastructure } from "@/components/sections/open-infrastructure";
 import { Pillars } from "@/components/sections/pillars";
+import { PlazaBuilder } from "@/components/sections/plaza-builder";
 import { Problem } from "@/components/sections/problem";
 import { UseCases } from "@/components/sections/use-cases";
+import { WaitlistSection } from "@/components/sections/waitlist-section";
 import { FaqSchema } from "@/components/seo/faq-schema";
 import { OrganizationSchema } from "@/components/seo/organization-schema";
 
@@ -30,12 +32,12 @@ export default function HomePage() {
       <Hero />
       <Problem />
       <Pillars />
-      {/* Stage 4 — <PlazaBuilder /> */}
+      <PlazaBuilder />
       <BitcoinHub />
       <UseCases />
       <OpenInfrastructure />
       <CommunityBuilders />
-      {/* Stage 4 — <Waitlist /> */}
+      <WaitlistSection />
       <Faq />
     </>
   );

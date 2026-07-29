@@ -31,25 +31,55 @@ npm run dev
 
 Nothing external is required to run the site locally. With no `DATABASE_URL` the
 waitlist cannot persist; with no `NEXT_PUBLIC_POSTHOG_KEY` analytics is inert and
-sends nothing. Both are intentional so a fresh clone runs.
+sends nothing; with no `RESEND_API_KEY` confirmation email is skipped (and says
+so in the terminal); with no Turnstile keys the widget is absent and the check
+passes open. All intentional so a fresh clone runs.
+
+### Local database
+
+Local dev and the API integration tests use Postgres in Docker; `.env` (gitignored)
+points at it:
+
+```bash
+docker run -d --name bitplaza-pg -e POSTGRES_USER=bitplaza \
+  -e POSTGRES_PASSWORD=bitplaza -e POSTGRES_DB=bitplaza \
+  -p 5433:5432 postgres:16-alpine     # first time
+docker start bitplaza-pg              # thereafter
+npm run db:migrate                    # apply prisma/migrations
+```
+
+Port **5433** on purpose — nothing else on this machine claims it. Production
+uses Neon: pooled string in `DATABASE_URL`, direct string in `DIRECT_URL`
+(migrations cannot run through a transaction pooler).
 
 ## Layout
 
 ```
 docs/          audit, architecture, decisions — read 00 first
+prisma/        schema + migrations (schema designed in docs/00 §4)
+emails/        React Email templates (confirmation, application receipt)
 src/
   app/         routes. layout.tsx holds fonts, theme init, metadata
+    api/       waitlist, community-application, research-response, admin/export
   components/
     layout/    shell — header, footer, container, section
     plaza/     the motif (canvas)
     sections/  one file per landing band
+    interest/  the selector chips + deterministic preview
+    waitlist/  form + success/share state
+    community/ the builder application form
     ui/        primitives
   content/     ALL copy, as typed constants
   lib/
     analytics/ typed event catalogue + restrictive PostHog client
+    attribution/  cookie-free ?ref / utm_* capture (sessionStorage)
+    email/     Resend wrapper — send failures never fail a committed signup
+    security/  rate limit (Postgres, hashed keys) · honeypot/timing · Turnstile
+    validation/   Zod schemas, shared client ↔ server
+    waitlist/  signup transaction, referral codes, normalization, CSV
     design-tokens.ts   the palette, as data, so tests can assert on it
     communities.ts     the ten communities and their three colour tokens each
-tests/         vitest; tests/e2e is playwright
+tests/         vitest; api.waitlist.integration needs the Docker Postgres up
 ```
 
 ## Rules worth knowing before you edit

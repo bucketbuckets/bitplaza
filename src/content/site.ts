@@ -29,9 +29,7 @@ export const BRAND_PROMISE = "Less noise. More belonging, progress and opportuni
  */
 export const NAV_LINKS = [
   { href: "#pillars", label: "What it is" },
-  // "Build your plaza" → #plaza-builder is added here in Stage 4, with the
-  // interest selector itself. An anchor to a section that does not exist looks
-  // identical to a broken one.
+  { href: "#plaza-builder", label: "Build your plaza" },
   { href: "#bitcoin", label: "First plaza" },
   { href: "#open", label: "How it's built" },
   { href: "#faq", label: "Questions" },
@@ -58,9 +56,7 @@ export const FOOTER_GROUPS = [
     heading: "Communities",
     links: [
       { href: "#bitcoin", label: "Bitcoin Culture Hub" },
-      // "Bring your community" → ROUTES.communityBuilders is added here in
-      // Stage 4, together with the page itself. Linking to a route that does
-      // not exist yet is a broken link and a prefetch 404, not a placeholder.
+      { href: ROUTES.communityBuilders, label: "Bring your community" },
     ],
   },
   {

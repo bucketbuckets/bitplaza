@@ -8,7 +8,9 @@ afterEach(cleanup);
 // jsdom implements neither of these, and both are read on first paint by the
 // motion wrappers and the plaza canvas. Without them every component test that
 // renders a section throws before it reaches an assertion.
-if (!window.matchMedia) {
+// Guarded on `window` existing at all: API integration tests run under
+// `@vitest-environment node`, where there is no window to patch.
+if (typeof window !== "undefined" && !window.matchMedia) {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: (query: string) => ({
@@ -24,7 +26,7 @@ if (!window.matchMedia) {
   });
 }
 
-if (!window.IntersectionObserver) {
+if (typeof window !== "undefined" && !window.IntersectionObserver) {
   Object.defineProperty(window, "IntersectionObserver", {
     writable: true,
     value: class {
