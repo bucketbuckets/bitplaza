@@ -317,6 +317,36 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+
+    /* Belt to the observer's braces. RevealObserver already returns early
+       under reduced motion, so nothing should ever be hidden — this makes that
+       true even if the hiding rule is somehow applied first. */
+    [data-reveal] {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+}
+
+/* ═══ REVEAL ════════════════════════════════════════════════════════════
+   Content is visible by default. JavaScript opts *into* hiding it, by setting
+   `js` on <html> before first paint. Everything then fails toward readable:
+   no JS, a script error, a blocked bundle, or reduced motion all leave the
+   page fully legible rather than blank.
+
+   The inverse — hiding by default and revealing with JS — is how a marketing
+   page ends up rendering nothing at all for anyone the script does not reach. */
+@layer components {
+  [data-reveal] {
+    transition:
+      opacity 0.55s var(--ease-plaza),
+      transform 0.55s var(--ease-plaza);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+
+  html.js [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translateY(14px);
   }
 }
 
@@ -345,5 +375,28 @@
   .scroll-x {
     overflow-x: auto;
     overscroll-behavior-x: contain;
+  }
+}
+
+/* Accordion open/close. Height has to be animated from the variable Radix
+   measures, because `height: auto` is not interpolable — this is the one place
+   the value cannot come from a token. The reduced-motion block above collapses
+   the duration, which leaves the panel opening instantly rather than not at
+   all. */
+@keyframes faq-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes faq-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
   }
 }

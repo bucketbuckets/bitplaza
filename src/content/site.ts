@@ -29,8 +29,11 @@ export const BRAND_PROMISE = "Less noise. More belonging, progress and opportuni
  */
 export const NAV_LINKS = [
   { href: "#pillars", label: "What it is" },
-  { href: "#plaza-builder", label: "Build your plaza" },
+  // "Build your plaza" → #plaza-builder is added here in Stage 4, with the
+  // interest selector itself. An anchor to a section that does not exist looks
+  // identical to a broken one.
   { href: "#bitcoin", label: "First plaza" },
+  { href: "#open", label: "How it's built" },
   { href: "#faq", label: "Questions" },
 ] as const;
 

@@ -4,6 +4,7 @@ import { Marcellus, Public_Sans } from "next/font/google";
 import "./globals.css";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { RevealObserver } from "@/components/motion/reveal-observer";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { AnalyticsProvider } from "@/lib/analytics/provider";
 import { SITE } from "@/content/site";
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* Must run before first paint. Anything React-based flashes the wrong
             theme on every load for people who chose dark. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+
       </head>
       <body className="flex min-h-full flex-col">
         <a
@@ -92,6 +94,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         <AnalyticsProvider>
+          <RevealObserver />
           <SiteHeader />
           <main id="main" className="flex-1">
             {children}
