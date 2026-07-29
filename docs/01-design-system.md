@@ -1,9 +1,23 @@
 # Stage 2 — Design system, shell, shared components
 
+> ## ⚠️ SUPERSEDED — 2026-07-29
+>
+> The **visual direction** in this document is replaced by [`../design.md`](../design.md) v2.0.
+> Blue Hour was dark-first, serif-led and built on thin network lines; the new
+> direction rules out all three. Do not implement anything below.
+>
+> **The architecture survives and is still authoritative** — token layering,
+> the CSS↔TypeScript sync test, worst-case contrast discipline, the three-token
+> community model, the reveal system, the analytics catalogue, and copy-in-
+> constants. `design.md` §24 lists precisely what is kept, retuned and deleted.
+>
+> This file is retained for the reasoning, not the values.
+
 **Date:** 2026-07-29
 **Direction:** Blue Hour (ground, light, type) + Wayfinding (structure) — the
 hybrid chosen from the three-direction comparison.
-**Status:** Complete. `npm run verify` passes.
+**Status:** Superseded by `design.md` v2.0. Was complete and passing at the time
+of writing.
 
 ---
 
