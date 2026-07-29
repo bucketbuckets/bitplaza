@@ -35,23 +35,31 @@ the user, along with three others recorded in §9 of that file:
 4. **Brand:** was "show directions first" → Blue Hour hybrid was built → then
    **replaced wholesale by `design.md` v2.0** (see §3 below).
 
-## 2. State of the repo — four commits, all local
+## 2. State of the repo
+
+> **Superseded (was "four commits, all local"):** the repo now lives at
+> **https://github.com/bucketbuckets/bitplaza** (private). `gh` is
+> authenticated as **bucketbuckets** and `gh auth setup-git` has been run —
+> plain `git push` works (without the helper it fails with "could not read
+> Username"). Flip public later with `gh repo edit --visibility public`.
+> Commits since the original four: `cc0d277` (Stage 4/5 waitlist, §10),
+> `61d4c23` (/bitcoin page + email-first form fix, §11).
 
 ```
-a20079c  Phase 1 of design.md v2.0 (apricot identity, arch, Bricolage)  ← HEAD
+a20079c  Phase 1 of design.md v2.0 (apricot identity, arch, Bricolage)
 61f58b1  design.md v2.0 written; docs/01 marked superseded
 569fd6f  Stage 3: seven landing sections
 c8d7b6d  Scaffold: design system, shell, shared components
 ```
 
-**No GitHub repo exists. `gh` is not authenticated.** User must run
-`gh auth login`, then create + push. Git identity is set repo-locally
-(Tommy John / team@houseofnaka.com).
+Git identity is set repo-locally (Tommy John / team@houseofnaka.com).
 
 Stack: Next 16.2.12 (App Router, Turbopack), React 19.2.4, Tailwind 4, TS
-strict, Vitest 4.1.10 (81 tests), Playwright (system Chrome only). Routes:
-`/`, `/data`, `/privacy`, `/terms` — all static. `npm run verify` = typecheck →
-lint → test → build; it passes at HEAD and is the gate for "done".
+strict, Vitest 4.1.10 (156 tests — was 81), Playwright (system Chrome only).
+Routes: `/`, `/bitcoin`, `/for-community-builders`, `/data`, `/privacy`,
+`/terms` (static) + four dynamic API routes (§10). `npm run verify` =
+typecheck → lint → test → build; it passes at HEAD and is the gate for "done".
+Integration tests need the Docker Postgres up (§10).
 
 ## 3. The design pivot — the single most important thing to know
 
@@ -269,3 +277,66 @@ Still open: Neon + Vercel + DNS/Resend verification, OG image/favicons/
 sitemap/robots, e2e Playwright specs, Lighthouse, referral "moves you up the
 list" copy implies an admission-order policy — referralCount is recorded, the
 policy itself is a launch-ops decision.
+
+---
+
+## 11. Addendum — /bitcoin, email-first forms, GitHub (still 2026-07-29)
+
+Commit `61d4c23`, from the owner's first review pass. Three notes came back;
+palette, brown/orange warmth and light/dark were explicitly approved — do not
+revisit them.
+
+### /bitcoin — the Culture Hub's doorway page
+
+The owner wants Bitplaza driving traffic *into* Bitcoin Culture Hub, so the
+hub now has its own page rather than only a homepage section. Structure:
+hero (tagline "The map of the rabbit hole", status line, two CTAs), the seven
+entry kinds from design.md district 7 (structure only — **no entry counts
+anywhere**, same honesty rule as §3), twelve domains, depth levels, six
+paths, waitlist close. Links in: hero primary CTA, homepage #bitcoin section
+CTA, footer. Nav "First plaza" still anchors to the homepage section on
+purpose (on-page orientation; the section links deeper).
+
+- **The owner will supply the specific parts later.** They land in
+  `src/content/bitcoin-hub-page.ts` (owner note at the top marks the spot) —
+  never in components. Expect real entries, dates, and eventually the live
+  hub's own URL to swap into the CTAs.
+- Detail blocks (domains/depth/paths) were extracted to
+  `src/components/bitcoin/hub-details.tsx`, shared by the section and the
+  page, with `headingLevel` parameterised because the same block sits under
+  an h2 on the homepage and the h1's sections on /bitcoin (§21 heading-order
+  rule).
+- Bitcoin's colour leads on this page and nowhere else — accents and marks
+  via `--color-c-bitcoin`/`-text`, never a ground behind text.
+
+### The email-capture bug — a real user failure, not a hypothetical
+
+A tester (Kyle) typed his **surname into the Email field** — the
+First-name/Email side-by-side row read as First name/Last name. The owner's
+words: "There's no email collection. It's just a name collection." Fix, in
+both forms (waitlist + community application): email is the FIRST field, full
+width, label "Your email", placeholder `you@example.com`,
+`inputMode/autoCapitalize/spellCheck` set, and `mode: "onTouched"` on
+react-hook-form so a non-address is flagged on blur, not at submit. Lesson
+recorded: never pair a name field beside the email field on a conversion
+form.
+
+### Launch gap — as reported to the owner, in order
+
+Blocked on owner (accounts + decisions): (1) domain + Vercel + Neon — the
+single gating item, no shareable URL without it; (2) **Resend + SPF/DKIM/
+DMARC now** — reputation warm-up is days-to-weeks; (3) Turnstile + PostHog
+keys (code wired, inert); (4) two decisions: the concrete referral-advance
+policy (emails already promise "moves you up the list" — pick the mechanic
+before volume traffic) and a `/data`/privacy copy pass.
+
+Buildable next session, no accounts needed: OG/social card (arch on apricot
+— the referral loop's face on X), favicon set, sitemap + robots, Lighthouse +
+keyboard-funnel e2e.
+
+Marketing plan given to the owner: Bitcoiners first; **send that audience to
+`/bitcoin`, not the homepage**; UTM every channel (attribution capture is
+live, so per-channel conversion lands in the DB); channels in order — own
+X/Nostr with the built share loop, 3–5 Bitcoin newsletters/podcasts, meetup
+QR codes to /bitcoin, community-leaders page to organizers. PostHog key turns
+on funnel measurement across the 12 instrumented events.
