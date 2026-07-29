@@ -22,7 +22,7 @@ export function UseCases() {
           <Reveal as="li" key={useCase.id} delay={Math.min(i, 5) * 0.04} className="bg-surface">
             <div className="flex h-full flex-col gap-3 p-7 sm:p-8">
               <h3 className="font-display text-xl leading-snug text-ink">{useCase.title}</h3>
-              <p className="text-[0.9375rem] leading-relaxed text-muted">{useCase.body}</p>
+              <p className="text-[0.9375rem] leading-relaxed text-ink-muted">{useCase.body}</p>
             </div>
           </Reveal>
         ))}

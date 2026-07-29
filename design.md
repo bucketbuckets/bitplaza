@@ -287,7 +287,7 @@ white. There is no convention to memorise — measure, then pick.
 | Collecting | `#0D7EA8` | white (4.60) | `#0A6386` (5.90) | `#5EC8EF` (8.15) |
 | Education | `#3B49DF` | white (6.55) | `#2C39B8` (7.77) | `#98A6FF` (6.85) |
 | Gaming | `#C026A8` | white (5.14) | `#9C1F87` (6.26) | `#F292DE` (7.37) |
-| Sports | `#1F7A3D` | white (5.37) | `#186231` (6.55) | `#59C97F` (7.48) |
+| Entrepreneurship | `#1F7A3D` | white (5.37) | `#186231` (6.55) | `#59C97F` (7.48) |
 | AI | `#5A5F6B` | white (6.39) | `#4A4F59` (7.26) | `#B8BEC9` (8.34) |
 
 All thirty combinations clear AA. **Tightest three — watch these in review:** Open
@@ -795,7 +795,11 @@ Eight districts. A journey, not a feature list.
   - **Forming** — 60% colour, outlined marker, "Forming" label, member count.
   - **Idea** — outline only, dashed border, "Idea" label, "vote for this" action.
 - Examples: Bitcoin (live); Music, Local, Collecting, Open source (forming);
-  Education, Sports, Creative scenes (idea).
+  Education, Entrepreneurship, Gaming (idea).
+
+  These ten are fixed by the product brief — they are the interest selector's
+  options and a data decision, not a design one. Do not add or substitute
+  communities here without changing the waitlist schema too.
 - One portal is always **"Start your own"** — apricot, arch outline, for organisers.
 - **Copy:** *Start with Bitcoin. Expand anywhere.*
 

@@ -44,7 +44,7 @@ export function Faq() {
                 </span>
                 <span
                   aria-hidden="true"
-                  className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-pill border border-edge-strong text-muted transition-transform duration-300 ease-plaza group-data-[state=open]:rotate-45"
+                  className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-pill border border-edge-strong text-ink-muted transition-transform duration-300 ease-plaza group-data-[state=open]:rotate-45"
                 >
                   <Plus className="size-4" strokeWidth={1.75} />
                 </span>
@@ -52,7 +52,7 @@ export function Faq() {
             </Accordion.Header>
 
             <Accordion.Content className="overflow-hidden data-[state=closed]:animate-[faq-up_240ms_ease] data-[state=open]:animate-[faq-down_240ms_ease]">
-              <p className="pr-13 pb-7 leading-relaxed text-muted">{item.answer}</p>
+              <p className="pr-13 pb-7 leading-relaxed text-ink-muted">{item.answer}</p>
             </Accordion.Content>
           </Accordion.Item>
         ))}

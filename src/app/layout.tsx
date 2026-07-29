@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Marcellus, Public_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -10,27 +10,40 @@ import { AnalyticsProvider } from "@/lib/analytics/provider";
 import { SITE } from "@/content/site";
 
 /**
- * Display: an inscriptional roman — the letterform tradition of carved civic
- * lettering. Warm and formal at once, and one weight only, a constraint that
- * keeps it an event rather than a default.
+ * Type. design.md §9.
  *
- * Body: the US federal government's public-service typeface. Chosen for what it
- * is as much as for how it looks; this is a page about public space.
+ * Display: Bricolage Grotesque. Contemporary and genuinely unconventional, with
+ * variable weight, width and optical-size axes. The WIDTH axis is the point —
+ * expanded display type is what makes the hero read as signage rather than as a
+ * headline, and no other free face offers it.
  *
- * Both are self-hosted by next/font at build time, so no request ever leaves
- * for a font CDN. That matters here beyond performance — a third-party font
- * request is a third-party log entry, which would contradict what /data says.
+ * Body: Geist. Highly readable small, neutral enough to carry long copy without
+ * fighting the display face.
+ *
+ * Utility: Geist Mono. The open-source voice — labels, counts, and anywhere the
+ * machinery is deliberately visible.
+ *
+ * All three self-hosted by next/font at build time, so no request ever leaves
+ * for a font CDN. That matters beyond performance: a third-party font request is
+ * a third-party log entry, which would contradict what /data says.
  */
-const display = Marcellus({
-  weight: "400",
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-marcellus",
+  variable: "--font-bricolage",
+  display: "swap",
+  // The full width range, so the hero can go expanded and the wordmark with it.
+  axes: ["opsz", "wdth"],
+});
+
+const body = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
   display: "swap",
 });
 
-const body = Public_Sans({
+const mono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-public-sans",
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -67,8 +80,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   // Both are declared so the browser chrome matches the ground in either theme.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#e9ecf2" },
-    { media: "(prefers-color-scheme: dark)", color: "#101826" },
+    { media: "(prefers-color-scheme: light)", color: "#fdf8f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#17120f" },
   ],
   colorScheme: "light dark",
 };
@@ -77,7 +90,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
-      className={`${display.variable} ${body.variable} h-full`}
+      className={`${display.variable} ${body.variable} ${mono.variable} h-full`}
       suppressHydrationWarning
     >
       <head>
@@ -89,7 +102,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="flex min-h-full flex-col">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-pill focus:bg-primary focus:px-5 focus:py-3 focus:text-on-primary"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-pill focus:bg-apricot focus:px-5 focus:py-3 focus:text-[#1a1310]"
         >
           Skip to content
         </a>

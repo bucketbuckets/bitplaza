@@ -1,272 +1,289 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   BITPLAZA — DESIGN TOKENS
-   Direction: Blue Hour (ground, light, type) + Wayfinding (structure).
+   BITPLAZA — DESIGN TOKENS v2.0
+   Spec: design.md §8 (colour), §9 (type), §13 (texture), §14 (motion).
 
-   The plaza at dusk: a deep slate ground with warm lamplight pooling where
-   paths meet, laid over the line-and-interchange logic of a civic signage
-   system.
+   A living digital plaza. Electric apricot on warm cream, cobalt and citron
+   in support, everything built on one shape — the arch.
 
-   Every value below is measured, not indicative. A ratio noted inline is the
-   WORST CASE across all three grounds in that theme — for light text that is
-   `raised`, for dark text it is `ground`. Quoting the best case is how token
-   sets end up shipping a failing pair. tests/tokens.contrast.test.ts is the
-   guard; this comment is only a note.
+   Light mode is the primary expressive experience. Dark mode is the plaza at
+   NIGHT: warm near-black, never blue-black. Neither is an inversion.
 
-   Rules of the system:
+   A ratio noted inline is the WORST CASE across all three grounds in that
+   theme. Quoting the best case is how token sets ship a failing pair.
+   tests/tokens.contrast.test.ts is the guard; this comment is only a note.
+
+   Rules:
      · Raw values live on :root and the theme selectors ONLY.
      · Components consume them through @theme inline, never directly.
-     · Both themes are designed. Dark is the brand's hero, not its default —
-       the viewer's OS preference wins, and the toggle overrides both ways.
+     · WHITE ON APRICOT IS 2.85:1 AND FAILS. Apricot takes ink text, always.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* ── LIGHT · "Dawn" ─────────────────────────────────────────────────────
-   The plaza in the morning. Deep slate becomes the ink and the primary;
-   lamp gold steps back to an accent. Not an inversion — a different hour. */
+/* ── LIGHT · the plaza by day ─────────────────────────────────────────── */
 :root {
-  --bp-ground: #e9ecf2;
-  --bp-surface: #f4f6f9;
-  --bp-raised: #ffffff;
-  --bp-ink: #16202e;          /* 13.9:1 worst case  AAA */
-  --bp-muted: #4e5a6c;        /*  5.9:1 worst case  AA  */
-  --bp-faint: #5c6879;        /*  4.8:1 worst case  AA — the floor; nothing lighter passes */
-  --bp-edge: #ccd4e0;
-  --bp-edge-strong: #a7b3c5;
+  --bp-paper: #fdf8f1;        /* warm cream — never pure white */
+  --bp-surface: #f7f0e4;
+  --bp-raised: #ffffff;       /* only ever a card ON surface */
+  --bp-ink: #1a1310;          /* 16.2:1 worst case  AAA */
+  --bp-ink-muted: #5a4f47;    /*  7.0:1 worst case  AAA */
+  --bp-ink-faint: #6e6259;    /*  5.2:1 worst case  AA — the floor */
 
-  /* Interactive. In daylight the slate leads and the lamp accents. */
-  --bp-primary: #16202e;      /* button fill */
-  --bp-on-primary: #f4f6f9;   /* 15.2:1 on the fill  AAA */
-  --bp-accent: #e8b368;       /* lamp — as a fill or mark only, never as text */
-  --bp-accent-text: #8a5a16;  /*  5.0:1 worst case   AA — for lamp-coloured TEXT */
-  --bp-on-accent: #101826;    /*  9.4:1 on the lamp fill  AAA */
+  --bp-apricot: #ff6a3d;      /* THE signature. Ink text only. 6.45:1 on-fill */
+  --bp-apricot-ink: #b33509;  /*  5.4:1 worst case  AA — apricot as TEXT */
+  --bp-cobalt: #2440e0;       /*  7.28:1 with white on-fill */
+  --bp-cobalt-ink: #1e36c4;   /*  7.8:1 worst case  AAA */
+  --bp-citron: #d6e63c;       /* 13.3:1 with ink on-fill. Highlight, never a surface */
+  --bp-citron-ink: #5c6410;   /*  5.6:1 worst case  AA */
+  --bp-mint: #3ecf9a;         /*  9.3:1 with ink on-fill. Live / active */
+  --bp-mint-ink: #0f6b4c;     /*  5.7:1 worst case  AA */
 
-  --bp-focus: #1a66ab;
-  --bp-glow: 0 0 0 0 transparent;
-  --bp-shadow-sm: 0 1px 2px rgb(22 32 46 / 0.06), 0 1px 1px rgb(22 32 46 / 0.04);
-  --bp-shadow-md: 0 4px 16px -4px rgb(22 32 46 / 0.1), 0 2px 4px rgb(22 32 46 / 0.05);
-  --bp-shadow-lg: 0 16px 48px -12px rgb(22 32 46 / 0.16);
+  --bp-edge: #e4d9c8;
+  --bp-edge-strong: #c9b9a2;
+  --bp-focus: #2440e0;        /*  6.4:1 — needs 3:1 */
 
-  /* Wayfinding structure */
-  --bp-rule: #ccd4e0;         /* hairline */
-  --bp-path: #a7b3c5;         /* the drawn line */
-  --bp-node: #f4f6f9;         /* interchange fill */
-  --bp-node-ring: #16202e;
+  /* Warm-tinted shadows. Neutral grey shadows on a cream ground read dirty. */
+  --bp-shadow-contact: 0 1px 2px rgb(70 45 25 / 0.08);
+  --bp-shadow-soft: 0 2px 4px rgb(70 45 25 / 0.06), 0 8px 24px -8px rgb(70 45 25 / 0.14);
+  --bp-shadow-lift: 0 4px 8px rgb(70 45 25 / 0.08), 0 16px 40px -12px rgb(70 45 25 / 0.2);
+  --bp-shadow-deep: 0 8px 16px rgb(70 45 25 / 0.1), 0 32px 64px -16px rgb(70 45 25 / 0.28);
+  /* The print offset under primary buttons — a hard shadow, not a glow. */
+  --bp-shadow-press: 0 2px 0 rgb(26 19 16 / 0.16);
+  --bp-shadow-press-hover: 0 4px 0 rgb(26 19 16 / 0.18);
+
+  --bp-grain-opacity: 0.035;
 
   /* Community TEXT tokens — theme-dependent. Fills are static (see @theme). */
-  --bp-c-bitcoin-text: #9a5a08;
-  --bp-c-ai-text: #3a47b5;
-  --bp-c-design-text: #a82a7c;
-  --bp-c-collecting-text: #7e3050;
-  --bp-c-opensource-text: #1b6b3d;
-  --bp-c-entrepreneurship-text: #9e3326;
-  --bp-c-music-text: #5f45c0;
-  --bp-c-local-text: #565f14;
-  --bp-c-education-text: #1a66ab;
-  --bp-c-gaming-text: #0a6b6d;
+  --bp-c-bitcoin-text: #8a5008;
+  --bp-c-music-text: #b32458;
+  --bp-c-design-text: #6326d6;
+  --bp-c-opensource-text: #0b7a54;
+  --bp-c-local-text: #a33418;
+  --bp-c-collecting-text: #0a6386;
+  --bp-c-education-text: #2c39b8;
+  --bp-c-gaming-text: #9c1f87;
+  --bp-c-entrepreneurship-text: #186231;
+  --bp-c-ai-text: #4a4f59;
 }
 
-/* ── DARK · "Blue Hour" ─────────────────────────────────────────────────
-   The hero look. Warm light on a deep ground; the lamp becomes primary. */
+/* ── DARK · the plaza at night ────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bp-ground: #101826;
-    --bp-surface: #161f30;
-    --bp-raised: #1d2839;
-    --bp-ink: #f2ede3;        /* 12.7:1 worst case  AAA */
-    --bp-muted: #9aa6b8;      /*  6.0:1 worst case  AA  */
-    --bp-faint: #8896ad;      /*  5.0:1 worst case  AA — the floor; nothing darker passes  */
-    --bp-edge: #25324a;
-    --bp-edge-strong: #3a4b69;
+    --bp-paper: #17120f;      /* warm near-black — never blue-black */
+    --bp-surface: #211a15;
+    --bp-raised: #2b221c;
+    --bp-ink: #fbf4ea;        /* 14.3:1 worst case  AAA */
+    --bp-ink-muted: #b7a99c;  /*  6.8:1 worst case  AA  */
+    --bp-ink-faint: #9c8d80;  /*  4.85:1 worst case AA — the floor */
 
-    --bp-primary: #e8b368;
-    --bp-on-primary: #101826; /*  9.4:1 on the fill  AAA */
-    --bp-accent: #e8b368;
-    --bp-accent-text: #e8b368; /* 7.8:1 worst case  AAA */
-    --bp-on-accent: #101826;
+    --bp-apricot: #ff6a3d;    /* unchanged — the signature does not shift */
+    --bp-apricot-ink: #ff9166;/*  7.0:1 worst case  AAA */
+    --bp-cobalt: #2440e0;
+    --bp-cobalt-ink: #8fa0ff; /*  6.4:1 worst case  AA  */
+    --bp-citron: #d6e63c;
+    --bp-citron-ink: #d6e63c; /* 11.3:1 worst case  AAA */
+    --bp-mint: #3ecf9a;
+    --bp-mint-ink: #5fe0b4;   /*  9.5:1 worst case  AAA */
 
-    --bp-focus: #e8b368;
-    --bp-glow: 0 0 40px -8px rgb(232 179 104 / 0.3);
-    --bp-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
-    --bp-shadow-md: 0 4px 20px -6px rgb(0 0 0 / 0.45);
-    --bp-shadow-lg: 0 20px 56px -16px rgb(0 0 0 / 0.6);
+    --bp-edge: #382c24;
+    --bp-edge-strong: #544236;
+    --bp-focus: #ff9166;      /*  7.0:1 */
 
-    --bp-rule: #25324a;
-    --bp-path: #3a4b69;
-    --bp-node: #161f30;
-    --bp-node-ring: #9aa6b8;
+    --bp-shadow-contact: 0 1px 2px rgb(0 0 0 / 0.4);
+    --bp-shadow-soft: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+    --bp-shadow-lift: 0 4px 8px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.6);
+    --bp-shadow-deep: 0 8px 16px rgb(0 0 0 / 0.4), 0 32px 64px -16px rgb(0 0 0 / 0.7);
+    --bp-shadow-press: 0 2px 0 rgb(0 0 0 / 0.5);
+    --bp-shadow-press-hover: 0 4px 0 rgb(0 0 0 / 0.55);
 
-    --bp-c-bitcoin-text: #f7931a;
-    --bp-c-ai-text: #93a0ee;
-    --bp-c-design-text: #f08ccb;
-    --bp-c-collecting-text: #de8fac;
-    --bp-c-opensource-text: #63c68c;
-    --bp-c-entrepreneurship-text: #f0907f;
-    --bp-c-music-text: #afa0f0;
-    --bp-c-local-text: #b3c155;
-    --bp-c-education-text: #78b6ee;
-    --bp-c-gaming-text: #4fc0c2;
+    --bp-grain-opacity: 0.05;
+
+    --bp-c-bitcoin-text: #ffb454;
+    --bp-c-music-text: #ff93b4;
+    --bp-c-design-text: #c0a5ff;
+    --bp-c-opensource-text: #4fdca6;
+    --bp-c-local-text: #ffa07d;
+    --bp-c-collecting-text: #5ec8ef;
+    --bp-c-education-text: #98a6ff;
+    --bp-c-gaming-text: #f292de;
+    --bp-c-entrepreneurship-text: #59c97f;
+    --bp-c-ai-text: #b8bec9;
   }
 }
 
 /* The explicit toggle must beat the media query in BOTH directions. */
 :root[data-theme="dark"] {
-  --bp-ground: #101826;
-  --bp-surface: #161f30;
-  --bp-raised: #1d2839;
-  --bp-ink: #f2ede3;
-  --bp-muted: #9aa6b8;
-  --bp-faint: #8896ad;
-  --bp-edge: #25324a;
-  --bp-edge-strong: #3a4b69;
-  --bp-primary: #e8b368;
-  --bp-on-primary: #101826;
-  --bp-accent: #e8b368;
-  --bp-accent-text: #e8b368;
-  --bp-on-accent: #101826;
-  --bp-focus: #e8b368;
-  --bp-glow: 0 0 40px -8px rgb(232 179 104 / 0.3);
-  --bp-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
-  --bp-shadow-md: 0 4px 20px -6px rgb(0 0 0 / 0.45);
-  --bp-shadow-lg: 0 20px 56px -16px rgb(0 0 0 / 0.6);
-  --bp-rule: #25324a;
-  --bp-path: #3a4b69;
-  --bp-node: #161f30;
-  --bp-node-ring: #9aa6b8;
-  --bp-c-bitcoin-text: #f7931a;
-  --bp-c-ai-text: #93a0ee;
-  --bp-c-design-text: #f08ccb;
-  --bp-c-collecting-text: #de8fac;
-  --bp-c-opensource-text: #63c68c;
-  --bp-c-entrepreneurship-text: #f0907f;
-  --bp-c-music-text: #afa0f0;
-  --bp-c-local-text: #b3c155;
-  --bp-c-education-text: #78b6ee;
-  --bp-c-gaming-text: #4fc0c2;
+  --bp-paper: #17120f;
+  --bp-surface: #211a15;
+  --bp-raised: #2b221c;
+  --bp-ink: #fbf4ea;
+  --bp-ink-muted: #b7a99c;
+  --bp-ink-faint: #9c8d80;
+  --bp-apricot: #ff6a3d;
+  --bp-apricot-ink: #ff9166;
+  --bp-cobalt: #2440e0;
+  --bp-cobalt-ink: #8fa0ff;
+  --bp-citron: #d6e63c;
+  --bp-citron-ink: #d6e63c;
+  --bp-mint: #3ecf9a;
+  --bp-mint-ink: #5fe0b4;
+  --bp-edge: #382c24;
+  --bp-edge-strong: #544236;
+  --bp-focus: #ff9166;
+  --bp-shadow-contact: 0 1px 2px rgb(0 0 0 / 0.4);
+  --bp-shadow-soft: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+  --bp-shadow-lift: 0 4px 8px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.6);
+  --bp-shadow-deep: 0 8px 16px rgb(0 0 0 / 0.4), 0 32px 64px -16px rgb(0 0 0 / 0.7);
+  --bp-shadow-press: 0 2px 0 rgb(0 0 0 / 0.5);
+  --bp-shadow-press-hover: 0 4px 0 rgb(0 0 0 / 0.55);
+  --bp-grain-opacity: 0.05;
+  --bp-c-bitcoin-text: #ffb454;
+  --bp-c-music-text: #ff93b4;
+  --bp-c-design-text: #c0a5ff;
+  --bp-c-opensource-text: #4fdca6;
+  --bp-c-local-text: #ffa07d;
+  --bp-c-collecting-text: #5ec8ef;
+  --bp-c-education-text: #98a6ff;
+  --bp-c-gaming-text: #f292de;
+  --bp-c-entrepreneurship-text: #59c97f;
+  --bp-c-ai-text: #b8bec9;
 }
 
 :root[data-theme="light"] {
-  --bp-ground: #e9ecf2;
-  --bp-surface: #f4f6f9;
+  --bp-paper: #fdf8f1;
+  --bp-surface: #f7f0e4;
   --bp-raised: #ffffff;
-  --bp-ink: #16202e;
-  --bp-muted: #4e5a6c;
-  --bp-faint: #5c6879;
-  --bp-edge: #ccd4e0;
-  --bp-edge-strong: #a7b3c5;
-  --bp-primary: #16202e;
-  --bp-on-primary: #f4f6f9;
-  --bp-accent: #e8b368;
-  --bp-accent-text: #8a5a16;
-  --bp-on-accent: #101826;
-  --bp-focus: #1a66ab;
-  --bp-glow: 0 0 0 0 transparent;
-  --bp-shadow-sm: 0 1px 2px rgb(22 32 46 / 0.06), 0 1px 1px rgb(22 32 46 / 0.04);
-  --bp-shadow-md: 0 4px 16px -4px rgb(22 32 46 / 0.1), 0 2px 4px rgb(22 32 46 / 0.05);
-  --bp-shadow-lg: 0 16px 48px -12px rgb(22 32 46 / 0.16);
-  --bp-rule: #ccd4e0;
-  --bp-path: #a7b3c5;
-  --bp-node: #f4f6f9;
-  --bp-node-ring: #16202e;
-  --bp-c-bitcoin-text: #9a5a08;
-  --bp-c-ai-text: #3a47b5;
-  --bp-c-design-text: #a82a7c;
-  --bp-c-collecting-text: #7e3050;
-  --bp-c-opensource-text: #1b6b3d;
-  --bp-c-entrepreneurship-text: #9e3326;
-  --bp-c-music-text: #5f45c0;
-  --bp-c-local-text: #565f14;
-  --bp-c-education-text: #1a66ab;
-  --bp-c-gaming-text: #0a6b6d;
+  --bp-ink: #1a1310;
+  --bp-ink-muted: #5a4f47;
+  --bp-ink-faint: #6e6259;
+  --bp-apricot: #ff6a3d;
+  --bp-apricot-ink: #b33509;
+  --bp-cobalt: #2440e0;
+  --bp-cobalt-ink: #1e36c4;
+  --bp-citron: #d6e63c;
+  --bp-citron-ink: #5c6410;
+  --bp-mint: #3ecf9a;
+  --bp-mint-ink: #0f6b4c;
+  --bp-edge: #e4d9c8;
+  --bp-edge-strong: #c9b9a2;
+  --bp-focus: #2440e0;
+  --bp-shadow-contact: 0 1px 2px rgb(70 45 25 / 0.08);
+  --bp-shadow-soft: 0 2px 4px rgb(70 45 25 / 0.06), 0 8px 24px -8px rgb(70 45 25 / 0.14);
+  --bp-shadow-lift: 0 4px 8px rgb(70 45 25 / 0.08), 0 16px 40px -12px rgb(70 45 25 / 0.2);
+  --bp-shadow-deep: 0 8px 16px rgb(70 45 25 / 0.1), 0 32px 64px -16px rgb(70 45 25 / 0.28);
+  --bp-shadow-press: 0 2px 0 rgb(26 19 16 / 0.16);
+  --bp-shadow-press-hover: 0 4px 0 rgb(26 19 16 / 0.18);
+  --bp-grain-opacity: 0.035;
+  --bp-c-bitcoin-text: #8a5008;
+  --bp-c-music-text: #b32458;
+  --bp-c-design-text: #6326d6;
+  --bp-c-opensource-text: #0b7a54;
+  --bp-c-local-text: #a33418;
+  --bp-c-collecting-text: #0a6386;
+  --bp-c-education-text: #2c39b8;
+  --bp-c-gaming-text: #9c1f87;
+  --bp-c-entrepreneurship-text: #186231;
+  --bp-c-ai-text: #4a4f59;
 }
 
-/* ═══ THEME MAPPING ═════════════════════════════════════════════════════
+/* ═══ THEME MAPPING ════════════════════════════════════════════════════
    `inline` is load-bearing: it inlines the var() reference so utilities
-   resolve against whatever the active theme block set. Without it the
+   resolve against whatever the active theme block set. Without it the theme
    toggle would not reach Tailwind-generated classes. */
 @theme inline {
-  --color-ground: var(--bp-ground);
+  --color-paper: var(--bp-paper);
   --color-surface: var(--bp-surface);
   --color-raised: var(--bp-raised);
   --color-ink: var(--bp-ink);
-  --color-muted: var(--bp-muted);
-  --color-faint: var(--bp-faint);
+  --color-ink-muted: var(--bp-ink-muted);
+  --color-ink-faint: var(--bp-ink-faint);
+
+  --color-apricot: var(--bp-apricot);
+  --color-apricot-ink: var(--bp-apricot-ink);
+  --color-cobalt: var(--bp-cobalt);
+  --color-cobalt-ink: var(--bp-cobalt-ink);
+  --color-citron: var(--bp-citron);
+  --color-citron-ink: var(--bp-citron-ink);
+  --color-mint: var(--bp-mint);
+  --color-mint-ink: var(--bp-mint-ink);
+
   --color-edge: var(--bp-edge);
   --color-edge-strong: var(--bp-edge-strong);
-
-  --color-primary: var(--bp-primary);
-  --color-on-primary: var(--bp-on-primary);
-  --color-accent: var(--bp-accent);
-  --color-accent-text: var(--bp-accent-text);
-  --color-on-accent: var(--bp-on-accent);
   --color-focus: var(--bp-focus);
-
-  --color-rule: var(--bp-rule);
-  --color-path: var(--bp-path);
-  --color-node: var(--bp-node);
-  --color-node-ring: var(--bp-node-ring);
 
   /* Community FILLS are absolute — a community's colour is its identity and
      must not shift with the viewer's theme. Only the TEXT variant adapts. */
   --color-c-bitcoin: #f7931a;
-  --color-c-ai: #3a47b5;
-  --color-c-design: #c0308f;
-  --color-c-collecting: #7e3050;
-  --color-c-opensource: #1e7a45;
-  --color-c-entrepreneurship: #b33a2b;
-  --color-c-music: #6b4fd6;
-  --color-c-local: #5e6916;
-  --color-c-education: #1a66ab;
-  --color-c-gaming: #0a6b6d;
+  --color-c-music: #e0457b;
+  --color-c-design: #7b3ff2;
+  --color-c-opensource: #0e9f6e;
+  --color-c-local: #e4572e;
+  --color-c-collecting: #0d7ea8;
+  --color-c-education: #3b49df;
+  --color-c-gaming: #c026a8;
+  --color-c-entrepreneurship: #1f7a3d;
+  --color-c-ai: #5a5f6b;
 
   --color-c-bitcoin-text: var(--bp-c-bitcoin-text);
-  --color-c-ai-text: var(--bp-c-ai-text);
-  --color-c-design-text: var(--bp-c-design-text);
-  --color-c-collecting-text: var(--bp-c-collecting-text);
-  --color-c-opensource-text: var(--bp-c-opensource-text);
-  --color-c-entrepreneurship-text: var(--bp-c-entrepreneurship-text);
   --color-c-music-text: var(--bp-c-music-text);
+  --color-c-design-text: var(--bp-c-design-text);
+  --color-c-opensource-text: var(--bp-c-opensource-text);
   --color-c-local-text: var(--bp-c-local-text);
+  --color-c-collecting-text: var(--bp-c-collecting-text);
   --color-c-education-text: var(--bp-c-education-text);
   --color-c-gaming-text: var(--bp-c-gaming-text);
+  --color-c-entrepreneurship-text: var(--bp-c-entrepreneurship-text);
+  --color-c-ai-text: var(--bp-c-ai-text);
 
-  /* Type. Display is inscriptional and used sparingly; body is a civic
-     public-service grotesk that carries everything else. */
-  --font-display: var(--font-marcellus), "Optima", "Palatino", Georgia, serif;
-  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  /* Type. Bricolage carries the personality through its width axis; Geist
+     carries everything a person has to read; Geist Mono is the open-source
+     voice, used where the machinery is deliberately visible. */
+  --font-display: var(--font-bricolage), "Helvetica Neue", system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* Fluid display sizes. Body sizes use Tailwind's defaults. */
-  --text-display-sm: clamp(1.5rem, 1.24rem + 1.3vw, 2.125rem);
-  --text-display-sm--line-height: 1.14;
-  --text-display: clamp(1.875rem, 1.4rem + 2.4vw, 3rem);
-  --text-display--line-height: 1.1;
-  --text-display-lg: clamp(2.375rem, 1.6rem + 3.9vw, 4.5rem);
-  --text-display-lg--line-height: 1.04;
+  /* Fluid display scale. Line height tightens as size grows. */
+  --text-display-hero: clamp(3rem, 1.6rem + 6.4vw, 7.5rem);
+  --text-display-hero--line-height: 0.94;
+  --text-display-1: clamp(2.5rem, 1.6rem + 4.2vw, 5rem);
+  --text-display-1--line-height: 0.98;
+  --text-display-2: clamp(2rem, 1.5rem + 2.4vw, 3.25rem);
+  --text-display-2--line-height: 1.04;
+  --text-heading-1: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --text-heading-1--line-height: 1.15;
+  --text-body-lg: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+  --text-body-lg--line-height: 1.55;
 
-  --shadow-soft: var(--bp-shadow-sm);
-  --shadow-lift: var(--bp-shadow-md);
-  --shadow-deep: var(--bp-shadow-lg);
-  --shadow-lamp: var(--bp-glow);
+  --shadow-contact: var(--bp-shadow-contact);
+  --shadow-soft: var(--bp-shadow-soft);
+  --shadow-lift: var(--bp-shadow-lift);
+  --shadow-deep: var(--bp-shadow-deep);
+  --shadow-press: var(--bp-shadow-press);
+  --shadow-press-hover: var(--bp-shadow-press-hover);
 
-  --radius-card: 0.5rem;
+  /* Radii are deliberate, not `rounded-lg` everywhere. --radius-arch is the
+     ownable one: fully round on top, squared at the base. A doorway. It is
+     reserved for plaza portals so it never loses its meaning. */
   --radius-pill: 999px;
+  --radius-card: 20px;
+  --radius-field: 12px;
+  --radius-sticker: 4px;
 
   --ease-plaza: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-plaza-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-settle: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
-/* ═══ BASE ══════════════════════════════════════════════════════════════ */
+/* ═══ BASE ═════════════════════════════════════════════════════════════ */
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* The sticky header must never cover an anchor target. */
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 6rem; /* the sticky header must never cover an anchor */
     -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background-color: var(--color-ground);
+    background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-synthesis-weight: none;
@@ -285,7 +302,7 @@
     text-wrap: pretty;
   }
 
-  /* One focus treatment, everywhere, visible on both grounds. */
+  /* One focus treatment, everywhere, visible over every ground. */
   :focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
@@ -293,17 +310,14 @@
   }
 
   ::selection {
-    background-color: var(--color-accent);
-    color: var(--bp-on-accent);
+    background-color: var(--color-citron);
+    color: #1a1310;
   }
 
-  /* Digits that sit in columns must line up. */
   [data-numeric] {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Reduced motion is a hard stop, not a softening. Anything that still has
-     to communicate does so without movement. */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -318,9 +332,8 @@
       scroll-behavior: auto !important;
     }
 
-    /* Belt to the observer's braces. RevealObserver already returns early
-       under reduced motion, so nothing should ever be hidden — this makes that
-       true even if the hiding rule is somehow applied first. */
+    /* Belt to the observer's braces — RevealObserver already returns early
+       under reduced motion, so nothing should ever be left hidden. */
     [data-reveal] {
       opacity: 1 !important;
       transform: none !important;
@@ -328,7 +341,7 @@
   }
 }
 
-/* ═══ REVEAL ════════════════════════════════════════════════════════════
+/* ═══ REVEAL ═══════════════════════════════════════════════════════════
    Content is visible by default. JavaScript opts *into* hiding it, by setting
    `js` on <html> before first paint. Everything then fails toward readable:
    no JS, a script error, a blocked bundle, or reduced motion all leave the
@@ -339,8 +352,8 @@
 @layer components {
   [data-reveal] {
     transition:
-      opacity 0.55s var(--ease-plaza),
-      transform 0.55s var(--ease-plaza);
+      opacity 0.42s var(--ease-plaza),
+      transform 0.42s var(--ease-plaza);
     transition-delay: var(--reveal-delay, 0s);
   }
 
@@ -348,19 +361,19 @@
     opacity: 0;
     transform: translateY(14px);
   }
-}
 
-@layer components {
-  /* Uppercase micro-labels need tracking or they read as noise. */
+  /* Uppercase micro-labels need tracking or they read as noise. Mono, per
+     design.md §9.2 — the label voice is the open-source voice. */
   .eyebrow {
+    font-family: var(--font-mono);
     font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     line-height: 1.4;
     text-transform: uppercase;
   }
 
-  /* Running text stays near 65 characters. */
+  /* Running text stays near 60–70 characters. */
   .measure {
     max-width: 34rem;
   }
@@ -376,27 +389,93 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
   }
+
+  /* Paper grain. One tiling SVG, rasterised once at 128px and repeated —
+     not a per-element filter, which would cost a rasterisation per node.
+     Decorative, so every consumer must also set aria-hidden. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: var(--bp-grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  /* Print misregistration — the signature texture move. A 1–2px offset ghost
+     of the shape in a second colour, as if cheaply offset-printed. */
+  .misregister {
+    position: relative;
+  }
+
+  .misregister::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    transform: translate(2px, 2px);
+    border-radius: inherit;
+    background: var(--misregister-color, var(--color-cobalt));
+    opacity: 0.3;
+  }
+
+  /* Texture is cosmetic and goes first when the connection is poor. */
+  @media (prefers-reduced-transparency: reduce) {
+    .grain::after,
+    .misregister::before {
+      display: none;
+    }
+  }
 }
 
-/* Accordion open/close. Height has to be animated from the variable Radix
-   measures, because `height: auto` is not interpolable — this is the one place
-   the value cannot come from a token. The reduced-motion block above collapses
-   the duration, which leaves the panel opening instantly rather than not at
-   all. */
-@keyframes faq-down {
-  from {
-    height: 0;
+/* ═══ AMBIENT DRIFT ════════════════════════════════════════════════════
+   The plaza is inhabited, so things move — slowly, and only a few pixels.
+   Three desynchronised phases so the composition never pulses in unison,
+   which is what makes ambient motion read as mechanical.
+
+   CSS rather than JavaScript: no animation loop, no rAF, nothing to pause,
+   and the browser can drop it to the compositor. Only `transform` animates.
+   The reduced-motion block in @layer base zeroes the duration, which stops
+   these dead. */
+@keyframes bp-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
   }
-  to {
-    height: var(--radix-accordion-content-height);
+  50% {
+    transform: translate3d(3px, -9px, 0);
   }
 }
 
-@keyframes faq-up {
-  from {
-    height: var(--radix-accordion-content-height);
+@keyframes bp-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
   }
-  to {
-    height: 0;
+  50% {
+    transform: translate3d(-5px, -6px, 0);
   }
+}
+
+@keyframes bp-drift-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(4px, -12px, 0);
+  }
+}
+
+[data-drift="a"] {
+  animation: bp-drift-a 13s ease-in-out infinite;
+}
+
+[data-drift="b"] {
+  animation: bp-drift-b 17s ease-in-out -4s infinite;
+}
+
+[data-drift="c"] {
+  animation: bp-drift-c 21s ease-in-out -9s infinite;
 }

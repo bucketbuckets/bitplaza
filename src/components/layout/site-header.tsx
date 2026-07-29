@@ -34,7 +34,7 @@ export function SiteHeader() {
       className={cn(
         "sticky top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300",
         scrolled
-          ? "border-b border-rule bg-ground/85 backdrop-blur-md"
+          ? "border-b border-edge bg-paper/85 backdrop-blur-md"
           : "border-b border-transparent bg-transparent",
       )}
     >
@@ -55,7 +55,7 @@ export function SiteHeader() {
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="rounded-pill px-3 py-2 text-sm text-muted transition-colors hover:text-ink"
+                    className="rounded-pill px-3 py-2 text-sm text-ink-muted transition-colors hover:text-ink"
                   >
                     {link.label}
                   </a>
@@ -84,9 +84,9 @@ export function SiteHeader() {
               </Dialog.Trigger>
 
               <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-50 bg-ground/70 backdrop-blur-sm lg:hidden" />
+                <Dialog.Overlay className="fixed inset-0 z-50 bg-paper/70 backdrop-blur-sm lg:hidden" />
                 <Dialog.Content
-                  className="fixed inset-x-0 top-0 z-50 border-b border-rule bg-surface p-5 shadow-deep lg:hidden"
+                  className="fixed inset-x-0 top-0 z-50 border-b border-edge bg-surface p-5 shadow-deep lg:hidden"
                   aria-describedby={undefined}
                 >
                   <Dialog.Title className="sr-only">Menu</Dialog.Title>

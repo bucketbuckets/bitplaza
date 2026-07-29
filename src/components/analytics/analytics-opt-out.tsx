@@ -24,7 +24,7 @@ export function AnalyticsOptOut() {
 
   if (state === "browser-opted-out") {
     return (
-      <p className="text-xs text-faint">
+      <p className="text-xs text-ink-faint">
         Your browser asks sites not to track you. We are not measuring this visit.
       </p>
     );
@@ -34,7 +34,7 @@ export function AnalyticsOptOut() {
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-      <p className="text-xs text-faint">
+      <p className="text-xs text-ink-faint">
         {optedOut
           ? "Anonymous usage measurement is off."
           : "We measure anonymous usage — no cookies, no profile."}
@@ -46,7 +46,7 @@ export function AnalyticsOptOut() {
           setUserOptedOut(next);
           if (next) stopAnalytics();
         }}
-        className="rounded-sm py-1 text-xs font-medium text-accent-text underline underline-offset-4 transition-[text-decoration-thickness] hover:decoration-2"
+        className="rounded-sm py-1 text-xs font-medium text-apricot-ink underline underline-offset-4 transition-[text-decoration-thickness] hover:decoration-2"
       >
         {optedOut ? "Turn on" : "Turn off"}
       </button>

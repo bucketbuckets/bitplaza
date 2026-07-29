@@ -12,10 +12,10 @@ export function Problem() {
           and nothing doubles up where two cells meet. */}
       <ul className="mt-14 grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-2">
         {PROBLEM.symptoms.map((symptom, i) => (
-          <Reveal as="li" key={symptom.id} delay={i * 0.05} className="bg-ground">
+          <Reveal as="li" key={symptom.id} delay={i * 0.05} className="bg-paper">
             <div className="flex h-full flex-col gap-3 p-7 sm:p-8">
               <h3 className="font-display text-xl text-ink">{symptom.title}</h3>
-              <p className="text-[0.9375rem] leading-relaxed text-muted">{symptom.body}</p>
+              <p className="text-[0.9375rem] leading-relaxed text-ink-muted">{symptom.body}</p>
             </div>
           </Reveal>
         ))}
@@ -24,11 +24,11 @@ export function Problem() {
       {/* The turn. Given the largest type on the page after the hero, because
           it is the actual thesis and everything before it was setup. */}
       <Reveal className="mt-16 sm:mt-20">
-        <blockquote className="flex flex-col gap-5 border-l-2 border-accent pl-6 sm:pl-10">
-          <p className="font-display text-display-sm text-ink measure-wide">
+        <blockquote className="flex flex-col gap-5 border-l-2 border-apricot pl-6 sm:pl-10">
+          <p className="font-display text-display-2 text-ink measure-wide">
             {PROBLEM.turn.statement}
           </p>
-          <p className="measure text-lg leading-relaxed text-muted">{PROBLEM.turn.support}</p>
+          <p className="measure text-lg leading-relaxed text-ink-muted">{PROBLEM.turn.support}</p>
         </blockquote>
       </Reveal>
     </Section>

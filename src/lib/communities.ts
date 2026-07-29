@@ -1,39 +1,47 @@
 /**
- * The ten communities offered in the interest selector.
+ * The ten communities offered in the interest selector. See `design.md` §8.4.
  *
- * Each one carries THREE colour tokens, not one. That is not over-engineering —
- * a single hue cannot serve as both a fill and as text on two different grounds
- * and stay above WCAG AA. The split is enforced by tests/tokens.contrast.test.ts.
+ * These ten are fixed by the product brief. They are the selector's options and
+ * therefore a data decision — adding or substituting one means changing the
+ * waitlist schema too, not just a colour table.
+ *
+ * Each carries THREE colour tokens, not one:
  *
  *   fill      the community's identity. Absolute — never shifts with theme.
  *   onFill    text placed ON that fill.
  *   textLight the hue as TEXT, on the light theme's grounds.
  *   textDark  the hue as TEXT, on the dark theme's grounds.
  *
- * Bitcoin is the only light-value hue in the set, so it is the only one whose
- * `onFill` is ink rather than white. That difference is structural, not
- * special-casing: it falls out of the colour, and it is the reason Bitcoin can
- * sit among the other nine without dominating the page.
+ * No single hue clears AA in all three roles, so the split is arithmetic rather
+ * than over-engineering.
  *
- * These are marketing categories, deliberately kept separate from the product
+ * `onFill` is chosen per community BY MEASUREMENT — four take ink, six take
+ * white. There is no convention to memorise and no "exception" to remember:
+ * compute both, keep the higher. tests/tokens.contrast.test.ts asserts that the
+ * value recorded here really is the better of the two.
+ *
+ * These are marketing categories, deliberately separate from the product
  * taxonomy in `bch/verticals/bitcoin.md` (twelve domains, ~70 threads). Do not
- * merge the two lists — they answer different questions.
+ * merge the lists — they answer different questions.
  */
 
 export const COMMUNITY_IDS = [
   "bitcoin",
-  "ai",
-  "design",
-  "collecting",
-  "opensource",
-  "entrepreneurship",
   "music",
+  "design",
+  "opensource",
   "local",
+  "collecting",
   "education",
   "gaming",
+  "entrepreneurship",
+  "ai",
 ] as const;
 
 export type CommunityId = (typeof COMMUNITY_IDS)[number];
+
+/** Where a plaza is in its life. Never signalled by colour alone. */
+export type PlazaStatus = "live" | "forming" | "idea";
 
 export interface Community {
   id: CommunityId;
@@ -42,93 +50,114 @@ export interface Community {
   onFill: string;
   textLight: string;
   textDark: string;
+  status: PlazaStatus;
 }
+
+const INK = "#1a1310";
+const WHITE = "#ffffff";
 
 export const COMMUNITIES: readonly Community[] = [
   {
     id: "bitcoin",
     label: "Bitcoin",
     fill: "#f7931a",
-    onFill: "#1b1d1a",
-    textLight: "#9a5a08",
-    textDark: "#f7931a",
-  },
-  {
-    id: "ai",
-    label: "AI",
-    fill: "#3a47b5",
-    onFill: "#ffffff",
-    textLight: "#3a47b5",
-    textDark: "#93a0ee",
-  },
-  {
-    id: "design",
-    label: "Design",
-    fill: "#c0308f",
-    onFill: "#ffffff",
-    textLight: "#a82a7c",
-    textDark: "#f08ccb",
-  },
-  {
-    id: "collecting",
-    label: "Collecting",
-    fill: "#7e3050",
-    onFill: "#ffffff",
-    textLight: "#7e3050",
-    textDark: "#de8fac",
-  },
-  {
-    id: "opensource",
-    label: "Open source",
-    fill: "#1e7a45",
-    onFill: "#ffffff",
-    textLight: "#1b6b3d",
-    textDark: "#63c68c",
-  },
-  {
-    id: "entrepreneurship",
-    label: "Entrepreneurship",
-    fill: "#b33a2b",
-    onFill: "#ffffff",
-    textLight: "#9e3326",
-    textDark: "#f0907f",
+    onFill: INK,
+    textLight: "#8a5008",
+    textDark: "#ffb454",
+    status: "live",
   },
   {
     id: "music",
     label: "Music",
-    fill: "#6b4fd6",
-    onFill: "#ffffff",
-    textLight: "#5f45c0",
-    textDark: "#afa0f0",
+    fill: "#e0457b",
+    onFill: INK,
+    textLight: "#b32458",
+    textDark: "#ff93b4",
+    status: "forming",
+  },
+  {
+    id: "design",
+    label: "Design",
+    fill: "#7b3ff2",
+    onFill: WHITE,
+    textLight: "#6326d6",
+    textDark: "#c0a5ff",
+    status: "forming",
+  },
+  {
+    id: "opensource",
+    label: "Open source",
+    fill: "#0e9f6e",
+    onFill: INK,
+    textLight: "#0b7a54",
+    textDark: "#4fdca6",
+    status: "forming",
   },
   {
     id: "local",
     label: "Local community",
-    fill: "#5e6916",
-    onFill: "#ffffff",
-    textLight: "#565f14",
-    textDark: "#b3c155",
+    fill: "#e4572e",
+    onFill: INK,
+    textLight: "#a33418",
+    textDark: "#ffa07d",
+    status: "forming",
+  },
+  {
+    id: "collecting",
+    label: "Collecting",
+    fill: "#0d7ea8",
+    onFill: WHITE,
+    textLight: "#0a6386",
+    textDark: "#5ec8ef",
+    status: "forming",
   },
   {
     id: "education",
     label: "Education",
-    fill: "#1a66ab",
-    onFill: "#ffffff",
-    textLight: "#1a66ab",
-    textDark: "#78b6ee",
+    fill: "#3b49df",
+    onFill: WHITE,
+    textLight: "#2c39b8",
+    textDark: "#98a6ff",
+    status: "idea",
   },
   {
     id: "gaming",
     label: "Gaming",
-    fill: "#0a6b6d",
-    onFill: "#ffffff",
-    textLight: "#0a6b6d",
-    textDark: "#4fc0c2",
+    fill: "#c026a8",
+    onFill: WHITE,
+    textLight: "#9c1f87",
+    textDark: "#f292de",
+    status: "idea",
+  },
+  {
+    id: "entrepreneurship",
+    label: "Entrepreneurship",
+    fill: "#1f7a3d",
+    onFill: WHITE,
+    textLight: "#186231",
+    textDark: "#59c97f",
+    status: "idea",
+  },
+  {
+    id: "ai",
+    label: "AI",
+    fill: "#5a5f6b",
+    onFill: WHITE,
+    textLight: "#4a4f59",
+    textDark: "#b8bec9",
+    status: "idea",
   },
 ] as const;
 
 /** The brief's cap. Enforced in the UI, in Zod, and again server-side. */
 export const MAX_COMMUNITIES = 3;
+
+/** Status is always paired with this label in the UI — never colour alone. */
+export const STATUS_LABEL: Record<PlazaStatus, string> = {
+  live: "Live",
+  forming: "Forming",
+  idea: "Idea",
+};
 
 const BY_ID = new Map(COMMUNITIES.map((c) => [c.id, c]));
 
@@ -140,7 +169,7 @@ export function isCommunityId(value: unknown): value is CommunityId {
   return typeof value === "string" && BY_ID.has(value as CommunityId);
 }
 
-/** Labels for display, in the canonical order — never re-sorted by selection. */
+/** Labels for display, in canonical order — never re-sorted by selection. */
 export function labelsFor(ids: readonly string[]): string[] {
   return COMMUNITIES.filter((c) => ids.includes(c.id)).map((c) => c.label);
 }

@@ -52,7 +52,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             onClick={() => setThemeMode(value)}
             className={cn(
               "grid size-8 place-items-center rounded-pill transition-colors duration-150",
-              selected ? "bg-primary text-on-primary" : "text-faint hover:text-ink",
+              selected ? "bg-ink text-paper" : "text-ink-faint hover:text-ink",
             )}
           >
             <Icon className="size-4" aria-hidden="true" strokeWidth={1.75} />

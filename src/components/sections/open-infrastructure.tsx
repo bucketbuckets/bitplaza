@@ -17,10 +17,10 @@ export function OpenInfrastructure() {
 
       <ul className="mt-14 grid gap-px overflow-hidden rounded-card border border-edge bg-edge sm:grid-cols-2">
         {OPEN_INFRA.map((item, i) => (
-          <Reveal as="li" key={item.id} delay={i * 0.05} className="bg-ground">
+          <Reveal as="li" key={item.id} delay={i * 0.05} className="bg-paper">
             <div className="flex h-full flex-col gap-3 p-7 sm:p-8">
               <h3 className="font-display text-xl text-ink">{item.title}</h3>
-              <p className="text-[0.9375rem] leading-relaxed text-muted">{item.body}</p>
+              <p className="text-[0.9375rem] leading-relaxed text-ink-muted">{item.body}</p>
             </div>
           </Reveal>
         ))}
@@ -34,7 +34,7 @@ export function OpenInfrastructure() {
           <h3 className="font-display text-2xl text-ink">{OPEN_INFRA_MODEL.heading}</h3>
           <div className="flex flex-col gap-4">
             {OPEN_INFRA_MODEL.body.map((paragraph) => (
-              <p key={paragraph.slice(0, 24)} className="measure-wide leading-relaxed text-muted">
+              <p key={paragraph.slice(0, 24)} className="measure-wide leading-relaxed text-ink-muted">
                 {paragraph}
               </p>
             ))}

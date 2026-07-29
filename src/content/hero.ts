@@ -1,19 +1,32 @@
 /**
- * Hero copy.
+ * Hero copy. design.md §16, district 1.
  *
- * Every string here is the brief's wording, unchanged. It was written to
- * position the product and it is not ours to improve — if it needs to change,
- * it changes here, once, and the component never knows.
+ * The headline is stored as an ARRAY OF LINES, not a string. Where a display
+ * headline breaks is a design decision at this size — leaving it to the browser
+ * produces a different composition at every viewport width, and one of them is
+ * always wrong.
+ *
+ * Supporting copy is ONE sentence, maximum 20 words. The previous version ran to
+ * 34 and read as a paragraph, which §16 rules out: nobody arrives wanting to
+ * read. Everything cut from here is said properly further down the page.
  */
 export const HERO = {
   eyebrow: "The internet for your interests",
-  headline: "Enter the communities that shape your life.",
+
+  /** Manually broken. Each entry is one line at desktop size. */
+  headline: ["Find your", "people."],
+
+  /** One sentence. 19 words. */
   supporting:
-    "Bitplaza is an AI-powered network where you can find your people, understand what matters, build reputation and discover opportunities within the communities you care about.",
-  primaryCta: { label: "Request early access", href: "#waitlist" },
-  secondaryCta: { label: "Explore the vision", href: "#pillars" },
-  trustLine: "Starting with Bitcoin. Built for every meaningful community.",
-  /** Describes the motif for anyone who cannot see it. */
-  fieldLabel:
-    "A plan view of a plaza: ten coloured paths, one for each community, meeting at lit interchanges around a single point at the centre.",
+    "Enter the communities you care about, and everything worth doing next — without depending on one closed platform.",
+
+  primaryCta: { label: "Enter the first plaza", href: "#bitcoin" },
+  secondaryCta: { label: "Request early access", href: "#waitlist" },
+  tertiaryCta: { label: "See how it works", href: "#pillars" },
+
+  trustLine: "Start with Bitcoin. Expand anywhere.",
+
+  /** Describes the composition for anyone who cannot see it. */
+  sceneLabel:
+    "A colonnade of arches, each a doorway into a different community, with people gathered at the thresholds.",
 } as const;

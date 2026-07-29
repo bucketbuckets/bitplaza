@@ -16,13 +16,13 @@ import { capture } from "@/lib/analytics/client";
  */
 export function CommunityBuilders() {
   return (
-    <section id="for-builders" className="border-t border-rule bg-surface py-20 sm:py-28 lg:py-36">
+    <section id="for-builders" className="border-t border-edge bg-surface py-20 sm:py-28 lg:py-36">
       <Container>
         <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
           <Reveal className="flex flex-col gap-5">
-            <p className="eyebrow text-accent-text">{COMMUNITY_BUILDERS.eyebrow}</p>
-            <h2 className="font-display text-display-sm text-ink">{COMMUNITY_BUILDERS.heading}</h2>
-            <p className="measure text-lg leading-relaxed text-muted">
+            <p className="eyebrow text-apricot-ink">{COMMUNITY_BUILDERS.eyebrow}</p>
+            <h2 className="font-display text-display-2 text-ink">{COMMUNITY_BUILDERS.heading}</h2>
+            <p className="measure text-lg leading-relaxed text-ink-muted">
               {COMMUNITY_BUILDERS.lead}
             </p>
 
@@ -36,7 +36,7 @@ export function CommunityBuilders() {
                   <ArrowRight className="size-4" aria-hidden="true" strokeWidth={2} />
                 </Link>
               </Button>
-              <p className="measure text-sm leading-relaxed text-faint">
+              <p className="measure text-sm leading-relaxed text-ink-faint">
                 {COMMUNITY_BUILDERS.cta.note}
               </p>
             </div>
@@ -47,7 +47,7 @@ export function CommunityBuilders() {
               {COMMUNITY_BUILDERS.points.map((point) => (
                 <li key={point.id} className="flex flex-col gap-2 bg-surface p-7 sm:p-8">
                   <h3 className="font-display text-xl text-ink">{point.title}</h3>
-                  <p className="text-[0.9375rem] leading-relaxed text-muted">{point.body}</p>
+                  <p className="text-[0.9375rem] leading-relaxed text-ink-muted">{point.body}</p>
                 </li>
               ))}
             </ul>

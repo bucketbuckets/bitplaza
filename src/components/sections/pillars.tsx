@@ -21,8 +21,8 @@ export function Pillars() {
           <Reveal as="li" key={pillar.id} delay={i * 0.05} className="bg-surface">
             <div className="flex h-full flex-col gap-4 p-7 sm:p-9">
               <h3 className="font-display text-2xl text-ink">{pillar.title}</h3>
-              <p className="text-base leading-relaxed text-ink/85">{pillar.body}</p>
-              <p className="mt-auto border-t border-edge pt-4 text-[0.9375rem] leading-relaxed text-muted">
+              <p className="text-base leading-relaxed text-ink-muted">{pillar.body}</p>
+              <p className="mt-auto border-t border-edge pt-4 text-[0.9375rem] leading-relaxed text-ink-muted">
                 {pillar.detail}
               </p>
             </div>

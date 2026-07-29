@@ -33,7 +33,7 @@ export function Section({
       className={cn(
         "py-20 sm:py-28 lg:py-36",
         tone === "surface" && "bg-surface",
-        ruled && "border-t border-rule",
+        ruled && "border-t border-edge",
         className,
       )}
       {...props}
@@ -70,9 +70,9 @@ export function SectionHeader({
         className,
       )}
     >
-      {eyebrow ? <p className="eyebrow text-accent-text">{eyebrow}</p> : null}
-      <Heading className="font-display text-display-sm text-ink measure-wide">{heading}</Heading>
-      {lead ? <p className="measure text-lg leading-relaxed text-muted">{lead}</p> : null}
+      {eyebrow ? <p className="eyebrow text-apricot-ink">{eyebrow}</p> : null}
+      <Heading className="font-display text-display-2 text-ink measure-wide">{heading}</Heading>
+      {lead ? <p className="measure text-lg leading-relaxed text-ink-muted">{lead}</p> : null}
     </div>
   );
 }

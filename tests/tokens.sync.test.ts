@@ -12,22 +12,21 @@ import { THEMES, type ThemeName } from "@/lib/design-tokens";
  * contrast test keeps passing against stale TypeScript, and a failing pair
  * ships. This test is the join between them.
  *
- * It also catches the subtler bug: the dark palette is written twice, once in
- * the media query and once under [data-theme="dark"]. Editing only one is the
- * single most likely mistake in this file, and it produces a page that looks
- * correct until someone touches the theme toggle.
+ * It also catches the subtler bug: each palette is written twice, once under
+ * the media query or :root and once under [data-theme]. Editing only one is the
+ * likeliest mistake in that file, and it produces a page that looks correct
+ * until someone touches the theme toggle.
  */
 
 // Comments are stripped before anything is located. The file's own prose
-// mentions `:root` and `@theme inline`, so searching the raw text finds the
-// documentation instead of the rule — which fails in a way that looks like a
+// mentions `:root` and `@theme inline`, so searching the raw text would find
+// the documentation instead of the rule — failing in a way that looks like a
 // token mismatch rather than a parser bug.
 const CSS = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8").replace(
   /\/\*[\s\S]*?\*\//g,
   "",
 );
 
-/** Parse the custom-property declarations out of the block starting at `from`. */
 function declarationsAt(from: number, label: string): Map<string, string> {
   if (from === -1) throw new Error(`block not found in globals.css: ${label}`);
   const open = CSS.indexOf("{", from);
@@ -45,10 +44,7 @@ function declarationsAt(from: number, label: string): Map<string, string> {
   return out;
 }
 
-/** A top-level block, found by its selector text. */
-function block(selector: string): Map<string, string> {
-  return declarationsAt(CSS.indexOf(selector), selector);
-}
+const block = (selector: string) => declarationsAt(CSS.indexOf(selector), selector);
 
 /** The `:root` nested inside a wrapping at-rule. */
 function nestedRoot(atRule: string): Map<string, string> {
@@ -70,19 +66,22 @@ const THEME_SOURCES: Record<ThemeName, Array<[string, () => Map<string, string>]
 };
 
 const VAR_FOR = {
-  ground: "--bp-ground",
+  paper: "--bp-paper",
   surface: "--bp-surface",
   raised: "--bp-raised",
   ink: "--bp-ink",
-  muted: "--bp-muted",
-  faint: "--bp-faint",
+  inkMuted: "--bp-ink-muted",
+  inkFaint: "--bp-ink-faint",
+  apricot: "--bp-apricot",
+  apricotInk: "--bp-apricot-ink",
+  cobalt: "--bp-cobalt",
+  cobaltInk: "--bp-cobalt-ink",
+  citron: "--bp-citron",
+  citronInk: "--bp-citron-ink",
+  mint: "--bp-mint",
+  mintInk: "--bp-mint-ink",
   edge: "--bp-edge",
   edgeStrong: "--bp-edge-strong",
-  primary: "--bp-primary",
-  onPrimary: "--bp-on-primary",
-  accent: "--bp-accent",
-  accentText: "--bp-accent-text",
-  onAccent: "--bp-on-accent",
   focus: "--bp-focus",
 } as const;
 

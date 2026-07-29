@@ -1,38 +1,92 @@
 import { cn } from "@/lib/utils";
 
 /**
- * The mark is the centre of the plaza field: one identity, with paths arriving
- * from four directions. It is the smallest possible statement of the whole
- * metaphor, which is what a mark at 20px has to be.
+ * The arch — the governing motif of the entire identity (design.md §5, §10).
+ *
+ * A doorway: flat base, straight sides, fully semicircular top, open at the
+ * bottom. It is the logo, the plaza portal shape, the mascot silhouette, the map
+ * pin and the loading indicator. Everything in the system either is an arch,
+ * sits under one, or passes through one.
+ *
+ * Chosen over a node graph because an arch is a THRESHOLD, and entering
+ * somewhere is the product's promise. A network diagram describes the
+ * engineering, not the experience.
+ *
+ * Construction, per §10.3:
+ *   · width : height ≈ 1 : 1.15 — a doorway, not a tunnel
+ *   · the base is OPEN. A closed arch reads as a tombstone.
+ *   · the optional dot at the threshold is a person standing in the doorway
  */
-export function PlazaMark({ className }: { className?: string }) {
+export function PlazaMark({
+  className,
+  /** Renders the figure at the threshold. Used for profile badges. */
+  occupied = true,
+}: {
+  className?: string;
+  occupied?: boolean;
+}) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 20 23"
       className={cn("size-6", className)}
       fill="none"
       aria-hidden="true"
       focusable="false"
     >
-      <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.55">
-        <path d="M2 12h4.5" />
-        <path d="M17.5 12H22" />
-        <path d="M12 2v4.5" />
-        <path d="M12 17.5V22" />
-        <path d="M4.7 4.7l3.2 3.2" />
-        <path d="M16.1 16.1l3.2 3.2" />
-      </g>
-      <circle cx="12" cy="12" r="5.5" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="12" cy="12" r="2" fill="currentColor" />
+      {/* Outer arch. Drawn as a stroked path so the doorway reads as an opening
+          rather than a filled blob at any size. */}
+      <path
+        d="M2.6 22V10.4a7.4 7.4 0 0 1 14.8 0V22"
+        stroke="currentColor"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      {occupied ? <circle cx="10" cy="14.6" r="2.9" fill="currentColor" /> : null}
     </svg>
+  );
+}
+
+/**
+ * A colonnade — three to five arches at varying heights.
+ *
+ * The secondary lockup. Used as a section marker, in the loading state, and at
+ * architectural scale in the hero.
+ */
+export function Colonnade({
+  className,
+  count = 3,
+}: {
+  className?: string;
+  count?: 3 | 4 | 5;
+}) {
+  const heights = [0.82, 1, 0.9, 0.72, 0.95].slice(0, count);
+  return (
+    <span className={cn("inline-flex items-end gap-1", className)} aria-hidden="true">
+      {heights.map((h, i) => (
+        <PlazaMark
+          key={i}
+          occupied={false}
+          className="size-5"
+          // Varying height is what stops a colonnade reading as a barcode.
+          {...{ style: { height: `${h * 100}%`, width: "auto" } }}
+        />
+      ))}
+    </span>
   );
 }
 
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5 text-ink", className)}>
-      <PlazaMark className="size-6 text-accent-text" />
-      <span className="font-display text-lg leading-none tracking-tight">Bitplaza</span>
+    <span className={cn("inline-flex items-center gap-2", className)}>
+      <PlazaMark className="size-7 text-apricot" />
+      {/* Expanded width is the typographic signature — the wordmark should read
+          as signage, not as a headline. */}
+      <span
+        className="font-display text-[1.35rem] leading-none text-ink"
+        style={{ fontStretch: "110%", fontWeight: 800, letterSpacing: "-0.03em" }}
+      >
+        Bitplaza
+      </span>
     </span>
   );
 }

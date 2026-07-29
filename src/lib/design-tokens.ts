@@ -1,76 +1,105 @@
 /**
- * Design tokens, as data.
+ * Design tokens, as data. Bitplaza v2.0 — see `design.md` §8.
  *
- * `src/app/globals.css` is what the browser actually reads. This file exists so
- * the values can be asserted against WCAG in a unit test, and so the community
- * palette has one authoritative home that TypeScript can see.
+ * `src/app/globals.css` is what the browser reads. This file exists so the
+ * values can be asserted against WCAG in a unit test, and so the palette has one
+ * authoritative home TypeScript can see.
  *
  * The two are kept honest by `tests/tokens.sync.test.ts`, which parses the CSS
- * and fails if a value here has drifted from the value shipped. Do not "fix" a
+ * and fails if a value here has drifted from the value shipped. Do not resolve a
  * mismatch by editing only one side.
+ *
+ * Light mode is the primary expressive experience; dark mode is the plaza at
+ * night — warm near-black, never blue-black. Neither is an inversion of the
+ * other.
  */
 
 export type ThemeName = "light" | "dark";
 
 export interface ThemeTokens {
-  /** Page background. In light this is the DARKEST ground, so it binds dark text. */
-  ground: string;
+  /** Page ground. Warm cream in light, warm near-black in dark. */
+  paper: string;
   surface: string;
-  /** In dark this is the LIGHTEST ground, so it binds light text. */
   raised: string;
   ink: string;
-  muted: string;
-  faint: string;
+  inkMuted: string;
+  /** The floor. Nothing lighter (light mode) or darker (dark mode) passes AA. */
+  inkFaint: string;
+  /** The signature. Identical in both themes — the brand colour does not shift. */
+  apricot: string;
+  /** Apricot as TEXT. The raw fill fails as text on light grounds. */
+  apricotInk: string;
+  cobalt: string;
+  cobaltInk: string;
+  citron: string;
+  citronInk: string;
+  mint: string;
+  mintInk: string;
   edge: string;
   edgeStrong: string;
-  primary: string;
-  onPrimary: string;
-  accent: string;
-  accentText: string;
-  onAccent: string;
   focus: string;
 }
 
 export const THEMES: Record<ThemeName, ThemeTokens> = {
   light: {
-    ground: "#e9ecf2",
-    surface: "#f4f6f9",
+    paper: "#fdf8f1",
+    surface: "#f7f0e4",
     raised: "#ffffff",
-    ink: "#16202e",
-    muted: "#4e5a6c",
-    faint: "#5c6879",
-    edge: "#ccd4e0",
-    edgeStrong: "#a7b3c5",
-    primary: "#16202e",
-    onPrimary: "#f4f6f9",
-    accent: "#e8b368",
-    accentText: "#8a5a16",
-    onAccent: "#101826",
-    focus: "#1a66ab",
+    ink: "#1a1310",
+    inkMuted: "#5a4f47",
+    inkFaint: "#6e6259",
+    apricot: "#ff6a3d",
+    apricotInk: "#b33509",
+    cobalt: "#2440e0",
+    cobaltInk: "#1e36c4",
+    citron: "#d6e63c",
+    citronInk: "#5c6410",
+    mint: "#3ecf9a",
+    mintInk: "#0f6b4c",
+    edge: "#e4d9c8",
+    edgeStrong: "#c9b9a2",
+    focus: "#2440e0",
   },
   dark: {
-    ground: "#101826",
-    surface: "#161f30",
-    raised: "#1d2839",
-    ink: "#f2ede3",
-    muted: "#9aa6b8",
-    faint: "#8896ad",
-    edge: "#25324a",
-    edgeStrong: "#3a4b69",
-    primary: "#e8b368",
-    onPrimary: "#101826",
-    accent: "#e8b368",
-    accentText: "#e8b368",
-    onAccent: "#101826",
-    focus: "#e8b368",
+    paper: "#17120f",
+    surface: "#211a15",
+    raised: "#2b221c",
+    ink: "#fbf4ea",
+    inkMuted: "#b7a99c",
+    inkFaint: "#9c8d80",
+    apricot: "#ff6a3d",
+    apricotInk: "#ff9166",
+    cobalt: "#2440e0",
+    cobaltInk: "#8fa0ff",
+    citron: "#d6e63c",
+    citronInk: "#d6e63c",
+    mint: "#3ecf9a",
+    mintInk: "#5fe0b4",
+    edge: "#382c24",
+    edgeStrong: "#544236",
+    focus: "#ff9166",
   },
 };
 
-/** Every background a token might sit on, per theme. Worst case is what counts. */
+/** Every ground a token might sit on, per theme. Worst case is what counts. */
 export const GROUNDS: Record<ThemeName, readonly string[]> = {
-  light: [THEMES.light.ground, THEMES.light.surface, THEMES.light.raised],
-  dark: [THEMES.dark.ground, THEMES.dark.surface, THEMES.dark.raised],
+  light: [THEMES.light.paper, THEMES.light.surface, THEMES.light.raised],
+  dark: [THEMES.dark.paper, THEMES.dark.surface, THEMES.dark.raised],
 };
+
+/**
+ * Brand fills, and the only text colour permitted on each.
+ *
+ * `apricot` is the one to watch: white on apricot measures 2.85:1 and fails at
+ * every size. A design that calls for it is wrong, and the test enforces that
+ * rather than trusting review to catch it.
+ */
+export const FILL_PAIRS = [
+  { name: "apricot", fill: "#ff6a3d", on: "#1a1310" },
+  { name: "cobalt", fill: "#2440e0", on: "#ffffff" },
+  { name: "citron", fill: "#d6e63c", on: "#1a1310" },
+  { name: "mint", fill: "#3ecf9a", on: "#1a1310" },
+] as const;
 
 /* ── Relative luminance and contrast, per WCAG 2.1 ──────────────────────── */
 
@@ -99,4 +128,9 @@ export function contrast(a: string, b: string): number {
   const la = luminance(a);
   const lb = luminance(b);
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/** Worst ratio across every ground this colour can legitimately sit on. */
+export function worstCase(color: string, theme: ThemeName): number {
+  return Math.min(...GROUNDS[theme].map((bg) => contrast(color, bg)));
 }

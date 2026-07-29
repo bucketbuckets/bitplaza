@@ -4,48 +4,70 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Pill buttons, from the Blue Hour direction — the one soft shape in an
- * otherwise ruled, right-angled system, which is what keeps it from reading as
- * a dashboard.
+ * Buttons. design.md §18.
  *
- * The `primary` fill inverts between themes by design: slate in daylight, lamp
- * gold at dusk. Both pairs are verified in tests/tokens.contrast.test.ts, so
- * this component never needs to know which theme is active.
+ * Pills, with a PRINT OFFSET shadow rather than a soft glow — a hard 2px drop
+ * that deepens on hover and collapses on press, so the control behaves like
+ * something physical. That, plus the apricot fill, is the whole personality; the
+ * geometry underneath stays exact. "The world is playful, the controls are
+ * precise."
  *
- * Minimum target is 44px tall at every size — the brief asks for mobile-first,
- * and a 32px pill fails a thumb regardless of how it looks in a mock.
+ * The primary fill takes INK text and only ink text. White on apricot measures
+ * 2.85:1 and fails at every size — tests/tokens.contrast.test.ts asserts it, so
+ * a design calling for it will not survive review.
+ *
+ * Heights are 48–56px rather than the 44px minimum: 44 is the floor for a target
+ * to be reachable, not a good size for the primary action on a page.
  */
 const button = cva(
   [
-    "inline-flex items-center justify-center gap-2 rounded-pill font-medium",
+    "inline-flex items-center justify-center gap-2 rounded-pill font-semibold",
     "whitespace-nowrap transition-[background-color,color,border-color,box-shadow,transform]",
-    "duration-200 ease-plaza",
+    "duration-150 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
     "disabled:pointer-events-none disabled:opacity-55",
-    "active:translate-y-px",
   ],
   {
     variants: {
       variant: {
-        primary: "bg-primary text-on-primary shadow-soft hover:shadow-lamp",
-        secondary: "border border-edge-strong text-ink hover:border-ink hover:bg-surface",
-        ghost: "text-muted hover:bg-surface hover:text-ink",
-        /** Reads as body text, behaves as a control. For inline affordances. */
-        link: "h-auto rounded-none px-0 py-0 text-accent-text underline underline-offset-4 decoration-1 hover:decoration-2",
+        /** The one thing to do here. One per viewport, ideally one per page. */
+        primary: [
+          "bg-apricot text-[#1a1310] shadow-press",
+          "hover:-translate-y-0.5 hover:shadow-press-hover",
+          "active:translate-y-0 active:shadow-none",
+        ],
+        /** The alternative path. Distinguished by shape AND border, not colour. */
+        secondary: [
+          "border-[1.5px] border-edge-strong bg-transparent text-ink",
+          "hover:border-ink hover:bg-surface",
+        ],
+        /** For a district that already sits on a saturated field. */
+        inverse: [
+          "bg-ink text-paper shadow-press",
+          "hover:-translate-y-0.5 hover:shadow-press-hover",
+          "active:translate-y-0 active:shadow-none",
+        ],
+        ghost: "text-ink-muted hover:bg-surface hover:text-ink",
+        /** Underlined at rest, so it never relies on colour alone. */
+        link: "h-auto min-h-0 rounded-none px-0 py-0 text-apricot-ink underline decoration-1 underline-offset-4 hover:decoration-2",
       },
       size: {
         sm: "min-h-11 px-4 text-sm",
         md: "min-h-12 px-5 text-[0.9375rem]",
-        lg: "min-h-14 px-7 text-base",
+        lg: "min-h-13 px-7 text-base sm:min-h-14",
+        xl: "min-h-14 px-9 text-lg sm:min-h-16 sm:px-11",
       },
     },
-    compoundVariants: [{ variant: "link", class: "min-h-0" }],
+    compoundVariants: [
+      // Only primaries lift. If everything moves, the hierarchy disappears.
+      { variant: ["secondary", "ghost", "link"], class: "hover:translate-y-0" },
+    ],
     defaultVariants: { variant: "primary", size: "md" },
   },
 );
 
 export type ButtonProps = React.ComponentPropsWithoutRef<"button"> &
   VariantProps<typeof button> & {
-    /** Render as the child element — use for links that look like buttons. */
+    /** Render as the child element — for links that look like buttons. */
     asChild?: boolean;
   };
 
