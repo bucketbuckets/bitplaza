@@ -653,3 +653,51 @@ render). The homepage "The code is public" blocker (§14) is now TRUE (public +
 AGPL LICENSE); the /open + FAQ **dataset** claims ("is published under CC
 BY-SA") are still overstated — nothing is published yet — and still need the
 tense pass from §14's copy review.
+
+---
+
+## 16. Addendum — the site is LIVE and working (still 2026-07-29)
+
+**joinbitplaza.com is live end-to-end.** Neon was provisioned (Marketplace,
+under the `bitplaza` project), the schema migrated, and a fresh production
+deploy shipped everything.
+
+- **Deploy:** `dpl_7TQ99WkocjWj2AvdFcxHbwyRHyqU` (READY, production), aliased to
+  `https://joinbitplaza.com` (SSL issued; the apex + www both resolve). Still
+  CLI-only deploys (`vercel deploy --prod --yes`, owner-run — classifier blocks
+  the assistant).
+- **Database:** Neon `neondb`, branch `main`, us-east-1. Both migrations applied
+  via the DIRECT url (`npx prisma migrate deploy`, run by the assistant with
+  owner-supplied strings). Production env now holds the real Neon strings:
+  `DATABASE_URL` = pooled (`-pooler` host), `DIRECT_URL` = direct. All three
+  (incl. `NEXT_PUBLIC_SITE_URL=https://joinbitplaza.com`) are Vercel
+  **Sensitive** vars → `vercel env pull` returns `[SENSITIVE]`, unreadable; the
+  only way to check a value is behavior after deploy.
+- **Verified live:** signup `POST /api/waitlist` → **201** `{position:1,
+  referralCode:21BG4C31, referralUrl: https://joinbitplaza.com/?ref=...}`;
+  duplicate resubmit → **200** `duplicate:true` same position (idempotent);
+  empty-body probe → **400** (DB reachable at runtime). OG image → **200**
+  image/png 26050B; `og:image`/`canonical`/`og:url` all absolute
+  `https://joinbitplaza.com`; sitemap + robots serve with the real domain.
+
+**Immediate post-launch chores (owner):**
+1. **Delete the test row + reset the counter.** The live test wrote a real row
+   at `position 1` (email `bitplaza-livetest-1785369196256@example.com`). Run in
+   Neon → SQL Editor: `TRUNCATE TABLE "waitlist_users" RESTART IDENTITY
+   CASCADE;` (only the test row exists, so this is safe and makes the first real
+   signup `#1`). Targeted alt (leaves sequence, next real user = #2):
+   `DELETE FROM "waitlist_users" WHERE "emailRaw" =
+   'bitplaza-livetest-1785369196256@example.com';`
+2. **Rotate the Neon password** — it was pasted into the assistant chat in
+   plaintext. Neon → Connect → Reset password, then re-set `DATABASE_URL` /
+   `DIRECT_URL` on Vercel (`vercel env add … production --force`, pooled vs
+   direct) and redeploy.
+
+**Before driving heavy traffic (from §15 security review — still open):** the
+two must-fix highs — spoofable `X-Forwarded-For` rate-limit key
+(`rate-limit.ts:22-31`) and Turnstile fail-open (`turnstile.ts:21,29-40`) —
+plus the mediums (referral farming, email relay). None block a soft launch, but
+they gate opening the funnel to volume. Also still open: Resend + SPF/DKIM/DMARC
+(email confirmations are inert without `RESEND_API_KEY`), Turnstile + PostHog
+keys, the copy retense (§14) + `OPEN_SECTION.repoUrl` now that the repo is
+public, and the referral-advance policy.
