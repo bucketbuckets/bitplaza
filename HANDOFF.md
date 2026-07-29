@@ -5,10 +5,12 @@ context. Read alongside `README.md` (commands, setup) and `design.md` (the
 authoritative visual spec). Where documents overlap, this one has the history
 and the reasoning; `design.md` has the decisions.
 
-> **Read §12 first.** The site was repositioned wholesale later this same day
-> ("the open map for communities", design.md v3.0). Sections 1–11 are accurate
-> history, but where they describe the *current* site or spec, §12 supersedes
-> them — §3 and §7A in particular describe a direction that no longer exists.
+> **Read §12 first, then §13.** The site was repositioned wholesale later this
+> same day ("the open map for communities", design.md v3.0). Sections 1–11 are
+> accurate history, but where they describe the *current* site or spec, §12
+> supersedes them — §3 and §7A in particular describe a direction that no
+> longer exists. §13 records the Vercel deployment (the site is live at
+> https://bitplaza.vercel.app, but production has no working database yet).
 
 ---
 
@@ -402,16 +404,81 @@ the arch mark all survive). Key facts for a resumer:
   row with `firstName = NULL`, then was deleted. Stale `.next/dev` artifacts
   can fail typecheck after route deletions — `rm -rf .next` first. Beware:
   `npm run verify | tail` masks the exit code; check `$?` unpiped.
-- **The work is UNCOMMITTED** — ~80 changed files sitting in the working tree
-  on `main` (the owner has not asked for a commit yet). Nothing else changed:
+- **The work is UNCOMMITTED** — *superseded: it was committed as `33cb69b`
+  ("Reposition the site as the open map for communities") and pushed; the tree
+  is clean at that commit as of §13.* Original note: ~80 changed files sitting
+  in the working tree on `main`. Nothing else changed:
   no new dependencies, no new env vars, one additive migration
   (`20260729174333_first_name_optional`, already applied to the local Docker
   DB; production Neon still does not exist). `README.md` and this file were
   updated; `docs/00` and `docs/01` are historical.
-- **Launch gap is unchanged from §11:** domain + Vercel + Neon, Resend +
-  SPF/DKIM/DMARC (start early), Turnstile + PostHog keys, the referral-advance
-  policy decision, plus the buildable items: OG/social card, favicon set,
-  sitemap + robots, Lighthouse run, keyboard-funnel e2e. New since §11: flip
-  the GitHub repo public and set `OPEN_SECTION.repoUrl`, and review the
-  `/open` and `/about` copy (both make openness claims the owner should read
-  before traffic arrives).
+- **Launch gap is unchanged from §11** *(Vercel itself is now done — see
+  §13)*: domain + Neon, Resend + SPF/DKIM/DMARC (start early), Turnstile +
+  PostHog keys, the referral-advance policy decision, plus the buildable
+  items: OG/social card, favicon set, sitemap + robots, Lighthouse run,
+  keyboard-funnel e2e. New since §11: flip the GitHub repo public and set
+  `OPEN_SECTION.repoUrl`, and review the `/open` and `/about` copy (both make
+  openness claims the owner should read before traffic arrives).
+
+---
+
+## 13. Addendum — Vercel is live (still 2026-07-29)
+
+The site is deployed and publicly serving at **https://bitplaza.vercel.app**
+(HTTP 200, correct `<title>`). What exists and what is deliberately unfinished:
+
+- **Account/scope:** Vercel CLI installed globally (`npm i -g vercel`), logged
+  in as `bitcoinculturehub-9325`. The account has two teams; the project was
+  created under **`bitcoin-culture-hub-19505dbf`** (not
+  `kyle-knights-projects`) as `bitcoin-culture-hub-19505dbf/bitplaza`. The
+  repo is linked (`.vercel/`, gitignored). Note: `vercel inspect <url>` and
+  other non-linked commands default to the *wrong* team — pass
+  `--scope bitcoin-culture-hub-19505dbf`.
+- **First deploy** (`bitplaza-6q9mebq2r-...`) was auto-assigned to production
+  and aliased to `bitplaza.vercel.app`. Deploys are **CLI-only** (`vercel
+  deploy`, `vercel deploy --prod`): the GitHub auto-connect to
+  `bucketbuckets/bitplaza` failed because the Vercel GitHub app is not
+  authorized for that private repo. To get push-to-deploy, install/authorize
+  the app from Project → Settings → Git in the dashboard.
+- **Env vars on Vercel — two are WRONG on purpose, one needs a redeploy:**
+  - `DATABASE_URL` / `DIRECT_URL` (production + preview) currently hold the
+    **local Docker values (`localhost:5433`)** — pushed before anyone noticed
+    `.env` pointed at Docker, and `vercel env rm` was blocked in-session.
+    Production therefore has **no working database**: static pages serve, but
+    any waitlist/application submit will fail at the DB. Replace both with
+    real Neon strings (pooled → `DATABASE_URL`, direct → `DIRECT_URL`) using
+    `vercel env add <NAME> <env> --force`.
+  - `NEXT_PUBLIC_SITE_URL=https://bitplaza.vercel.app` is set on production
+    but was added *after* the only deploy — it is `NEXT_PUBLIC_*`, i.e. baked
+    at build time, so canonical/sitemap/referral URLs are wrong until the
+    next `vercel deploy --prod`.
+- **Neon is still the missing piece.** `vercel integration add neon`
+  (Marketplace, auto-injects connection strings) was permission-blocked
+  in-session; the owner runs it (or installs Neon from the dashboard
+  Storage tab), then: replace the two env vars above, run
+  `npx prisma migrate deploy` against the Neon **direct** URL (both local
+  migrations incl. `20260729174333_first_name_optional`), and redeploy.
+- **Local additions, all gitignored:** `.env.local` (written by `vercel link`,
+  holds a `VERCEL_OIDC_TOKEN`) and `.claude/settings.local.json` (Bash
+  permission allow-list so the assistant can run `vercel`/text-utility
+  commands). `.gitignore` gained the `.claude/settings.local.json` line —
+  that edit is a real repo change, currently uncommitted alongside this file.
+- **Domain: `joinbitplaza.com` (Namecheap).** Both `joinbitplaza.com` and
+  `www.joinbitplaza.com` are attached to the `bitplaza` project, and
+  `NEXT_PUBLIC_SITE_URL` (production) now points at
+  `https://joinbitplaza.com` — but **DNS is not configured yet**: the domain
+  still has Namecheap's default nameservers and a parking A record
+  (`192.64.119.239`). The owner must set, in Namecheap → Advanced DNS:
+  `A @ 76.76.21.21` and `CNAME www cname.vercel-dns.com`, deleting the
+  parking/redirect records. Vercel polls, issues SSL, and emails when done.
+  Until then the site is only reachable at `bitplaza.vercel.app` — whose
+  canonical/metadata URLs will say `joinbitplaza.com` after the next deploy;
+  that is intended.
+- **Launch order from here:** Namecheap DNS (above; propagates in parallel) →
+  Neon via `vercel integration add neon` (owner-run; classifier-blocked for
+  the assistant) → swap `DATABASE_URL`/`DIRECT_URL` (`--force`) + `npx prisma
+  migrate deploy` against the Neon direct URL → `vercel deploy --prod --yes`
+  (owner-run; also classifier-blocked) — one deploy bakes both the domain and
+  the DB fix → end-to-end signup test on joinbitplaza.com →
+  Resend/Turnstile/PostHog keys via `vercel env add` → GitHub app
+  authorization for push-to-deploy.
