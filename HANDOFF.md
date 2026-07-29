@@ -5,12 +5,14 @@ context. Read alongside `README.md` (commands, setup) and `design.md` (the
 authoritative visual spec). Where documents overlap, this one has the history
 and the reasoning; `design.md` has the decisions.
 
-> **Read §12 first, then §13.** The site was repositioned wholesale later this
-> same day ("the open map for communities", design.md v3.0). Sections 1–11 are
-> accurate history, but where they describe the *current* site or spec, §12
+> **Read §12 first, then §13–§14.** The site was repositioned wholesale later
+> this same day ("the open map for communities", design.md v3.0). Sections 1–11
+> are accurate history, but where they describe the *current* site or spec, §12
 > supersedes them — §3 and §7A in particular describe a direction that no
 > longer exists. §13 records the Vercel deployment (the site is live at
 > https://bitplaza.vercel.app, but production has no working database yet).
+> §14 records the launch-requirements build (OG/icons/sitemap/robots/e2e/
+> Lighthouse/copy review) and the owner-run deploy that bakes it all.
 
 ---
 
@@ -482,3 +484,85 @@ The site is deployed and publicly serving at **https://bitplaza.vercel.app**
   the DB fix → end-to-end signup test on joinbitplaza.com →
   Resend/Turnstile/PostHog keys via `vercel env add` → GitHub app
   authorization for push-to-deploy.
+
+---
+
+## 14. Addendum — launch requirements built; deploy is owner-run (still 2026-07-29)
+
+Everything on the "buildable, no accounts needed" list from §11–§13 is now
+built and verified (7-agent workflow; final gate ran `rm -rf .next && npm run
+verify` unpiped: typecheck, lint, 147 unit/integration tests, build — all
+green; every new metadata route probed 200 on a local prod server).
+
+**Shipped in the working tree:**
+
+- **OG/social card** `src/app/opengraph-image.png` (1200×630, 26KB) +
+  `opengraph-image.alt.txt`. Arch + wordmark + `SITE.tagline`, all ink
+  `#1a1310` on apricot `#ff6a3d` (white-on-apricot fails contrast — §3). Font
+  is the exact self-hosted Bricolage woff2 from the build. No separate
+  twitter-image on purpose: layout's `summary_large_image` card falls back to
+  og:image. Re-render assets were in the session scratchpad (gone; method in
+  git history).
+- **Icon set:** `src/app/icon.svg` (ink arch on apricot rounded tile, base
+  OPEN), `apple-icon.png` (180×180 opaque), real `favicon.ico` (32×32
+  PNG-in-ICO, replaces scaffold default), `manifest.ts` (name/colors from
+  SITE/THEMES tokens), `public/icon-192.png` + `icon-512.png` (manifest needs
+  literal public paths).
+- **`src/app/sitemap.ts`** — exactly the 8 canonical routes (/, /bitcoin,
+  /communities, /open, /about, /questions, /privacy, /terms); redirect
+  sources and /api excluded. **`robots.ts`** — allow all, disallow /api/,
+  sitemap link. **Canonical fallback fixed:** `site.ts` fallback was still
+  `https://bitplaza.com` → now `https://joinbitplaza.com`; ditto the
+  `EMAIL_FROM` fallback in `lib/email/send.ts` → `hello@joinbitplaza.com`
+  (must become a verified Resend sender, or keep setting EMAIL_FROM).
+- **Keyboard-only e2e** (`npm run test:e2e`): `playwright.config.ts` (channel
+  "chrome" mandatory, port 3210, workers 1 because of the shared 10-req/10-min
+  rate window, webServer builds+starts prod) + `e2e/waitlist-keyboard.spec.ts`
+  and `e2e/leader-application-keyboard.spec.ts` + helpers. They assert the
+  full tab order (email-first, honeypot never focusable), dwell past the
+  2500ms `MIN_FORM_MS` gate, and prove the success screen is REAL (not the
+  anti-bot decoy) by reading the row back from Postgres and matching referral
+  code + position byte-for-byte. Rows and rate-limit counters cleaned before
+  and after. Vitest excludes `e2e/**`; Playwright sees only `e2e/`.
+
+**Lighthouse** (prod build, LH 13.4.1, both pages × mobile/desktop): desktop
+100/100/100/100 on both; mobile a11y/best-practices/SEO all 100; mobile
+**Performance 85 (home) / 89 (/bitcoin)** — sole culprit is LCP on the hero
+*text* paragraph (JS contention under simulated 4G; TBT 0, CLS 0). Fix
+direction, not applied: ~65KB of a 78%-unused client chunk, 22KB legacy
+polyfills (set modern browserslist targets), 130ms render-blocking CSS.
+/bitcoin needs one point; home needs ~1s of simulated LCP.
+
+**Copy review of /open + /about (+FAQ) — owner decisions, nothing changed:**
+
+- **BLOCKER:** homepage open section says **"The code is public"** — false
+  today (repo private, no LICENSE file anywhere). Two exits: (a) flip the
+  repo public + add AGPL-3.0 LICENSE + set `OPEN_SECTION.repoUrl`, making it
+  true; or (b) retense to "will be public". Same is/will-be tense problem in
+  /open ("is licensed AGPL-3.0", "is published under CC BY-SA", exportable
+  and AI claims) and `faq.ts` (~line 52) — all one-verb fixes, drafted in the
+  session transcript, must land together or the site contradicts itself.
+- /about "we are working with a small number of communities" — owner must
+  confirm those engagements are real, or use design.md's approved intent
+  phrasing.
+- Everything else held: zero foundation claims, and every privacy/analytics
+  claim in /open verified TRUE against the implementation.
+
+**Env vars are Sensitive (write-only).** The three production vars were
+re-created as Vercel *Sensitive* variables — `vercel env pull` writes literal
+`[SENSITIVE]` placeholders; NOBODY can read them back, so "is DATABASE_URL
+Neon or localhost?" is unanswerable by inspection (owner: "not sure"). The
+only test is end-to-end after a deploy: POST a real signup to
+`/api/waitlist` — contract per `src/lib/validation/waitlist.ts` +
+`src/lib/security/anti-bot.ts`: omit `nickname` (honeypot), send `startedAt`
+≥2500ms in the past, Turnstile is pass-open unconfigured. 201 with a position
+⇒ DB live and schema migrated; 500 ⇒ still no working DB (Neon remains the
+gating item; `vercel integration list` shows no marketplace resources).
+
+**Classifier note:** this session the auto-mode classifier blocked `vercel
+deploy --prod --yes` (again) and, late in the session, even `git status` /
+commits — so this work may be **uncommitted**; if `git status` shows the ~20
+files above, commit them first. DNS was re-checked this session: still
+Namecheap parking (registrar-servers NS, parking A record) — §13's records
+still need setting. Launch order otherwise unchanged from §13, minus
+everything now built.

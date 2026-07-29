@@ -16,7 +16,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
-    // Playwright specs live in tests/e2e and are run by `npm run test:e2e`.
-    exclude: ["node_modules/**", "tests/e2e/**"],
+    // Playwright specs live in e2e/ and are run by `npm run test:e2e`.
+    exclude: ["node_modules/**", "e2e/**"],
   },
 });

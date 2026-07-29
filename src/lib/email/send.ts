@@ -40,7 +40,7 @@ export async function sendEmail(input: SendEmailInput): Promise<void> {
 
   try {
     const { error } = await api.emails.send({
-      from: process.env.EMAIL_FROM ?? "Bitplaza <hello@bitplaza.com>",
+      from: process.env.EMAIL_FROM ?? "Bitplaza <hello@joinbitplaza.com>",
       replyTo: process.env.EMAIL_REPLY_TO || undefined,
       to: input.to,
       subject: input.subject,

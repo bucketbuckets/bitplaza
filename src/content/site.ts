@@ -14,7 +14,7 @@ export const SITE = {
   description:
     "Bitplaza brings a community's people, knowledge, projects, events, and opportunities into one open, navigable map. Start with Bitcoin.",
   /** Canonical origin. Set NEXT_PUBLIC_SITE_URL per environment. */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://bitplaza.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://joinbitplaza.com",
   locale: "en_US",
 } as const;
 
