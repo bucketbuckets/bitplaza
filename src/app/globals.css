@@ -1,0 +1,349 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BITPLAZA — DESIGN TOKENS
+   Direction: Blue Hour (ground, light, type) + Wayfinding (structure).
+
+   The plaza at dusk: a deep slate ground with warm lamplight pooling where
+   paths meet, laid over the line-and-interchange logic of a civic signage
+   system.
+
+   Every value below is measured, not indicative. A ratio noted inline is the
+   WORST CASE across all three grounds in that theme — for light text that is
+   `raised`, for dark text it is `ground`. Quoting the best case is how token
+   sets end up shipping a failing pair. tests/tokens.contrast.test.ts is the
+   guard; this comment is only a note.
+
+   Rules of the system:
+     · Raw values live on :root and the theme selectors ONLY.
+     · Components consume them through @theme inline, never directly.
+     · Both themes are designed. Dark is the brand's hero, not its default —
+       the viewer's OS preference wins, and the toggle overrides both ways.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── LIGHT · "Dawn" ─────────────────────────────────────────────────────
+   The plaza in the morning. Deep slate becomes the ink and the primary;
+   lamp gold steps back to an accent. Not an inversion — a different hour. */
+:root {
+  --bp-ground: #e9ecf2;
+  --bp-surface: #f4f6f9;
+  --bp-raised: #ffffff;
+  --bp-ink: #16202e;          /* 13.9:1 worst case  AAA */
+  --bp-muted: #4e5a6c;        /*  5.9:1 worst case  AA  */
+  --bp-faint: #5c6879;        /*  4.8:1 worst case  AA — the floor; nothing lighter passes */
+  --bp-edge: #ccd4e0;
+  --bp-edge-strong: #a7b3c5;
+
+  /* Interactive. In daylight the slate leads and the lamp accents. */
+  --bp-primary: #16202e;      /* button fill */
+  --bp-on-primary: #f4f6f9;   /* 15.2:1 on the fill  AAA */
+  --bp-accent: #e8b368;       /* lamp — as a fill or mark only, never as text */
+  --bp-accent-text: #8a5a16;  /*  5.0:1 worst case   AA — for lamp-coloured TEXT */
+  --bp-on-accent: #101826;    /*  9.4:1 on the lamp fill  AAA */
+
+  --bp-focus: #1a66ab;
+  --bp-glow: 0 0 0 0 transparent;
+  --bp-shadow-sm: 0 1px 2px rgb(22 32 46 / 0.06), 0 1px 1px rgb(22 32 46 / 0.04);
+  --bp-shadow-md: 0 4px 16px -4px rgb(22 32 46 / 0.1), 0 2px 4px rgb(22 32 46 / 0.05);
+  --bp-shadow-lg: 0 16px 48px -12px rgb(22 32 46 / 0.16);
+
+  /* Wayfinding structure */
+  --bp-rule: #ccd4e0;         /* hairline */
+  --bp-path: #a7b3c5;         /* the drawn line */
+  --bp-node: #f4f6f9;         /* interchange fill */
+  --bp-node-ring: #16202e;
+
+  /* Community TEXT tokens — theme-dependent. Fills are static (see @theme). */
+  --bp-c-bitcoin-text: #9a5a08;
+  --bp-c-ai-text: #3a47b5;
+  --bp-c-design-text: #a82a7c;
+  --bp-c-collecting-text: #7e3050;
+  --bp-c-opensource-text: #1b6b3d;
+  --bp-c-entrepreneurship-text: #9e3326;
+  --bp-c-music-text: #5f45c0;
+  --bp-c-local-text: #565f14;
+  --bp-c-education-text: #1a66ab;
+  --bp-c-gaming-text: #0a6b6d;
+}
+
+/* ── DARK · "Blue Hour" ─────────────────────────────────────────────────
+   The hero look. Warm light on a deep ground; the lamp becomes primary. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bp-ground: #101826;
+    --bp-surface: #161f30;
+    --bp-raised: #1d2839;
+    --bp-ink: #f2ede3;        /* 12.7:1 worst case  AAA */
+    --bp-muted: #9aa6b8;      /*  6.0:1 worst case  AA  */
+    --bp-faint: #8896ad;      /*  5.0:1 worst case  AA — the floor; nothing darker passes  */
+    --bp-edge: #25324a;
+    --bp-edge-strong: #3a4b69;
+
+    --bp-primary: #e8b368;
+    --bp-on-primary: #101826; /*  9.4:1 on the fill  AAA */
+    --bp-accent: #e8b368;
+    --bp-accent-text: #e8b368; /* 7.8:1 worst case  AAA */
+    --bp-on-accent: #101826;
+
+    --bp-focus: #e8b368;
+    --bp-glow: 0 0 40px -8px rgb(232 179 104 / 0.3);
+    --bp-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+    --bp-shadow-md: 0 4px 20px -6px rgb(0 0 0 / 0.45);
+    --bp-shadow-lg: 0 20px 56px -16px rgb(0 0 0 / 0.6);
+
+    --bp-rule: #25324a;
+    --bp-path: #3a4b69;
+    --bp-node: #161f30;
+    --bp-node-ring: #9aa6b8;
+
+    --bp-c-bitcoin-text: #f7931a;
+    --bp-c-ai-text: #93a0ee;
+    --bp-c-design-text: #f08ccb;
+    --bp-c-collecting-text: #de8fac;
+    --bp-c-opensource-text: #63c68c;
+    --bp-c-entrepreneurship-text: #f0907f;
+    --bp-c-music-text: #afa0f0;
+    --bp-c-local-text: #b3c155;
+    --bp-c-education-text: #78b6ee;
+    --bp-c-gaming-text: #4fc0c2;
+  }
+}
+
+/* The explicit toggle must beat the media query in BOTH directions. */
+:root[data-theme="dark"] {
+  --bp-ground: #101826;
+  --bp-surface: #161f30;
+  --bp-raised: #1d2839;
+  --bp-ink: #f2ede3;
+  --bp-muted: #9aa6b8;
+  --bp-faint: #8896ad;
+  --bp-edge: #25324a;
+  --bp-edge-strong: #3a4b69;
+  --bp-primary: #e8b368;
+  --bp-on-primary: #101826;
+  --bp-accent: #e8b368;
+  --bp-accent-text: #e8b368;
+  --bp-on-accent: #101826;
+  --bp-focus: #e8b368;
+  --bp-glow: 0 0 40px -8px rgb(232 179 104 / 0.3);
+  --bp-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --bp-shadow-md: 0 4px 20px -6px rgb(0 0 0 / 0.45);
+  --bp-shadow-lg: 0 20px 56px -16px rgb(0 0 0 / 0.6);
+  --bp-rule: #25324a;
+  --bp-path: #3a4b69;
+  --bp-node: #161f30;
+  --bp-node-ring: #9aa6b8;
+  --bp-c-bitcoin-text: #f7931a;
+  --bp-c-ai-text: #93a0ee;
+  --bp-c-design-text: #f08ccb;
+  --bp-c-collecting-text: #de8fac;
+  --bp-c-opensource-text: #63c68c;
+  --bp-c-entrepreneurship-text: #f0907f;
+  --bp-c-music-text: #afa0f0;
+  --bp-c-local-text: #b3c155;
+  --bp-c-education-text: #78b6ee;
+  --bp-c-gaming-text: #4fc0c2;
+}
+
+:root[data-theme="light"] {
+  --bp-ground: #e9ecf2;
+  --bp-surface: #f4f6f9;
+  --bp-raised: #ffffff;
+  --bp-ink: #16202e;
+  --bp-muted: #4e5a6c;
+  --bp-faint: #5c6879;
+  --bp-edge: #ccd4e0;
+  --bp-edge-strong: #a7b3c5;
+  --bp-primary: #16202e;
+  --bp-on-primary: #f4f6f9;
+  --bp-accent: #e8b368;
+  --bp-accent-text: #8a5a16;
+  --bp-on-accent: #101826;
+  --bp-focus: #1a66ab;
+  --bp-glow: 0 0 0 0 transparent;
+  --bp-shadow-sm: 0 1px 2px rgb(22 32 46 / 0.06), 0 1px 1px rgb(22 32 46 / 0.04);
+  --bp-shadow-md: 0 4px 16px -4px rgb(22 32 46 / 0.1), 0 2px 4px rgb(22 32 46 / 0.05);
+  --bp-shadow-lg: 0 16px 48px -12px rgb(22 32 46 / 0.16);
+  --bp-rule: #ccd4e0;
+  --bp-path: #a7b3c5;
+  --bp-node: #f4f6f9;
+  --bp-node-ring: #16202e;
+  --bp-c-bitcoin-text: #9a5a08;
+  --bp-c-ai-text: #3a47b5;
+  --bp-c-design-text: #a82a7c;
+  --bp-c-collecting-text: #7e3050;
+  --bp-c-opensource-text: #1b6b3d;
+  --bp-c-entrepreneurship-text: #9e3326;
+  --bp-c-music-text: #5f45c0;
+  --bp-c-local-text: #565f14;
+  --bp-c-education-text: #1a66ab;
+  --bp-c-gaming-text: #0a6b6d;
+}
+
+/* ═══ THEME MAPPING ═════════════════════════════════════════════════════
+   `inline` is load-bearing: it inlines the var() reference so utilities
+   resolve against whatever the active theme block set. Without it the
+   toggle would not reach Tailwind-generated classes. */
+@theme inline {
+  --color-ground: var(--bp-ground);
+  --color-surface: var(--bp-surface);
+  --color-raised: var(--bp-raised);
+  --color-ink: var(--bp-ink);
+  --color-muted: var(--bp-muted);
+  --color-faint: var(--bp-faint);
+  --color-edge: var(--bp-edge);
+  --color-edge-strong: var(--bp-edge-strong);
+
+  --color-primary: var(--bp-primary);
+  --color-on-primary: var(--bp-on-primary);
+  --color-accent: var(--bp-accent);
+  --color-accent-text: var(--bp-accent-text);
+  --color-on-accent: var(--bp-on-accent);
+  --color-focus: var(--bp-focus);
+
+  --color-rule: var(--bp-rule);
+  --color-path: var(--bp-path);
+  --color-node: var(--bp-node);
+  --color-node-ring: var(--bp-node-ring);
+
+  /* Community FILLS are absolute — a community's colour is its identity and
+     must not shift with the viewer's theme. Only the TEXT variant adapts. */
+  --color-c-bitcoin: #f7931a;
+  --color-c-ai: #3a47b5;
+  --color-c-design: #c0308f;
+  --color-c-collecting: #7e3050;
+  --color-c-opensource: #1e7a45;
+  --color-c-entrepreneurship: #b33a2b;
+  --color-c-music: #6b4fd6;
+  --color-c-local: #5e6916;
+  --color-c-education: #1a66ab;
+  --color-c-gaming: #0a6b6d;
+
+  --color-c-bitcoin-text: var(--bp-c-bitcoin-text);
+  --color-c-ai-text: var(--bp-c-ai-text);
+  --color-c-design-text: var(--bp-c-design-text);
+  --color-c-collecting-text: var(--bp-c-collecting-text);
+  --color-c-opensource-text: var(--bp-c-opensource-text);
+  --color-c-entrepreneurship-text: var(--bp-c-entrepreneurship-text);
+  --color-c-music-text: var(--bp-c-music-text);
+  --color-c-local-text: var(--bp-c-local-text);
+  --color-c-education-text: var(--bp-c-education-text);
+  --color-c-gaming-text: var(--bp-c-gaming-text);
+
+  /* Type. Display is inscriptional and used sparingly; body is a civic
+     public-service grotesk that carries everything else. */
+  --font-display: var(--font-marcellus), "Optima", "Palatino", Georgia, serif;
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Fluid display sizes. Body sizes use Tailwind's defaults. */
+  --text-display-sm: clamp(1.5rem, 1.24rem + 1.3vw, 2.125rem);
+  --text-display-sm--line-height: 1.14;
+  --text-display: clamp(1.875rem, 1.4rem + 2.4vw, 3rem);
+  --text-display--line-height: 1.1;
+  --text-display-lg: clamp(2.375rem, 1.6rem + 3.9vw, 4.5rem);
+  --text-display-lg--line-height: 1.04;
+
+  --shadow-soft: var(--bp-shadow-sm);
+  --shadow-lift: var(--bp-shadow-md);
+  --shadow-deep: var(--bp-shadow-lg);
+  --shadow-lamp: var(--bp-glow);
+
+  --radius-card: 0.5rem;
+  --radius-pill: 999px;
+
+  --ease-plaza: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-plaza-inout: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ═══ BASE ══════════════════════════════════════════════════════════════ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* The sticky header must never cover an anchor target. */
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One focus treatment, everywhere, visible on both grounds. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--bp-on-accent);
+  }
+
+  /* Digits that sit in columns must line up. */
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Reduced motion is a hard stop, not a softening. Anything that still has
+     to communicate does so without movement. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Uppercase micro-labels need tracking or they read as noise. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  /* Running text stays near 65 characters. */
+  .measure {
+    max-width: 34rem;
+  }
+
+  .measure-wide {
+    max-width: 44rem;
+  }
+}
+
+@layer utilities {
+  /* Wide content scrolls inside its own box; the page body never does. */
+  .scroll-x {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+}
