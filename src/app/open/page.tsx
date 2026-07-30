@@ -5,114 +5,246 @@ import { ProsePage, ProseSection } from "@/components/layout/prose-page";
 import { ROUTES } from "@/content/site";
 
 export const metadata: Metadata = {
-  title: "Open architecture",
+  title: "Open Source",
   description:
-    "How Bitplaza's openness is structured: licenses, data portability, protocol direction, the contribution model, and exactly what the site records. Precise about what exists today.",
+    "What is open about Bitplaza today: the public AGPL-3.0 repository, what the license permits, and what remains under development.",
 };
 
 /**
- * /open — the precise version of the homepage's three promises, plus the
- * data-practices page folded in. The rule for this page: every claim is
- * either checkable today or explicitly marked as being built. Nothing here
- * may outrun the implementation.
+ * /open — the owner's Open Source document (2026-07-30), published VERBATIM
+ * like /privacy and /terms. It replaces the earlier "precise promises" page,
+ * deliberately softening claims that had outrun the implementation (the
+ * CC BY-SA data promise, "no advertising, permanently") into intentions
+ * with explicit caveats. Do not edit the wording without the owner. Its
+ * repo link resolves the §22 Terms/AGPL tension: the code is publicly
+ * AGPL-3.0 and this page says so; the Terms' express-license-notice
+ * carve-out does the legal work.
  */
+
+const REPO_URL = "https://github.com/bucketbuckets/bitplaza";
+const CONTACT_EMAIL = "team@houseofnaka.com";
+
 export default function OpenPage() {
   return (
-    <ProsePage eyebrow="Open by design" title="The map belongs to the community." updated="2026-07-29">
-      <p>
-        This page is the precise version of the promises on the homepage. It says what is open
-        today, what is licensed to stay open, and what is still being built. Where something does
-        not exist yet, it says so.
-      </p>
-
-      <ProseSection heading="Licenses">
+    <ProsePage eyebrow="Open by design" title="Open Source" updated="2026-08-01">
+      <ProseSection heading="The map belongs to the community">
         <p>
-          The code is licensed <strong>AGPL-3.0</strong>: anyone can inspect it, modify it, and run
-          it, and anyone offering it as a service must publish their changes. Community knowledge
-          (the entries that make up a map) is published under <strong>CC BY-SA</strong>:
-          contributors keep credit, the dataset stays open, and anyone can hold a copy.
+          Bitplaza is being built as open infrastructure for communities: a way to organize,
+          preserve, and share the people, places, organizations, knowledge, and opportunities that
+          make a community valuable.
         </p>
         <p>
-          The public repository opens alongside early access. Until it does, we do not link to one,
-          and we do not claim you can read the code today. When it is public, the link will be
-          here and on the homepage.
+          The Bitplaza source code is public and licensed under the GNU Affero General Public
+          License version 3, or AGPL-3.0.
+        </p>
+        <p>
+          This page explains what is open today, what the license permits, and what remains under
+          development.
+        </p>
+      </ProseSection>
+
+      <ProseSection heading="Public repository">
+        <p>The Bitplaza source-code repository is publicly available at:</p>
+        <p>
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+            github.com/bucketbuckets/bitplaza
+          </a>
+        </p>
+        <p>
+          Anyone can inspect the code, follow development, report issues, and review how Bitplaza
+          is being built.
+        </p>
+        <p>
+          The repository’s license file provides the controlling legal terms. If this page ever
+          conflicts with that license, the license controls.
+        </p>
+      </ProseSection>
+
+      <ProseSection heading="Software license">
+        <p>Bitplaza’s software is licensed under AGPL-3.0.</p>
+        <p>
+          The license allows people to use, study, copy, modify, and redistribute the covered
+          software, provided they comply with its terms. AGPL-3.0 is an open-source, copyleft
+          license designed specifically to preserve access to source code when modified software is
+          used over a network.
+        </p>
+        <p>
+          In practical terms, someone who modifies covered Bitplaza software and allows users to
+          interact with that modified version over a network may be required to offer those users
+          access to the corresponding source code under AGPL-3.0.
+        </p>
+        <p>
+          The license applies only to the materials covered by the repository’s license and
+          notices. It does not automatically grant rights to Bitplaza trademarks, logos, branding,
+          private data, third-party materials, or content governed by a different license.
+        </p>
+      </ProseSection>
+
+      <ProseSection heading="Contributions">
+        <p>
+          We welcome people inspecting the code, opening issues, and participating in the project.
+        </p>
+        <p>
+          Before accepting substantial outside code contributions, we may introduce contribution
+          guidelines, authorship requirements, or a contributor agreement. Those rules will be
+          published in the repository.
+        </p>
+        <p>
+          Unless stated otherwise, contributions intentionally submitted for inclusion in the
+          licensed project should be expected to be distributed under the project’s applicable
+          license.
+        </p>
+        <p>
+          Do not submit code, data, designs, or other materials that you do not have the right to
+          contribute.
         </p>
       </ProseSection>
 
       <ProseSection heading="Portable identity">
+        <p>Bitplaza is being designed around portable identity and open protocols.</p>
         <p>
-          Your profile, contributions, and the reputation attached to them are being built as
-          signed, portable records on open protocols, so you can take them somewhere else without
-          our permission or our servers. This is a design commitment being implemented, not a
-          shipped feature. We will mark it here when it is real and verifiable.
+          Our goal is for people to be able to carry their profiles, contributions, and reputation
+          beyond a single Bitplaza application or server.
+        </p>
+        <p>
+          This remains under development. We will document the implementation, limitations, and
+          verification process when the feature is available to test.
         </p>
       </ProseSection>
 
-      <ProseSection heading="Exportable knowledge">
+      <ProseSection heading="Exportable community knowledge">
         <p>
-          A community&apos;s map is exportable in open formats and mirrorable outside Bitplaza.
-          Communities can host their own copy independently. This is what makes the resilience
-          answer structural: the map is built to outlive any single operator, including us.
+          We intend for communities to be able to export the knowledge they contribute in
+          practical, documented formats.
+        </p>
+        <p>
+          Our longer-term goal is to support community-controlled archives, independent copies, and
+          tools that reduce dependence on any single operator, including Bitplaza.
+        </p>
+        <p>
+          The available formats, export process, data licenses, and independent-hosting options
+          have not yet been finalized. Open-source software does not automatically mean that every
+          dataset or piece of user-contributed content is open under the same license.
+        </p>
+        <p>
+          We will publish the applicable data and content terms before describing community
+          knowledge as freely reusable or independently hostable.
         </p>
       </ProseSection>
 
-      <ProseSection heading="The contribution model">
+      <ProseSection heading="How contributions to maps are expected to work">
         <p>
-          A map starts curated by its community&apos;s leaders, opens to member contribution with
-          transparent review, and is designed to end up governed by the people in it. AI drafts
-          candidate entries and flags stale ones at a scale volunteers cannot; people decide what
-          is true and what belongs. That order does not reverse.
+          Bitplaza maps are being designed to begin with trusted curation and expand through
+          community participation.
+        </p>
+        <p>The intended model is:</p>
+        <ul>
+          <li>Community leaders establish the initial structure;</li>
+          <li>Members suggest additions and corrections;</li>
+          <li>Reviews and decisions remain visible;</li>
+          <li>AI helps draft, organize, and identify potentially outdated information; and</li>
+          <li>People remain responsible for deciding what is accurate and what belongs.</li>
+        </ul>
+        <p>This model may change as we test Bitplaza with early communities.</p>
+      </ProseSection>
+
+      <ProseSection heading="How Bitplaza expects to make money">
+        <p>Open-source software does not mean every Bitplaza service will be free.</p>
+        <p>
+          Bitplaza expects to charge organizations for software and services that help them create,
+          operate, and understand their communities. These may include:
+        </p>
+        <ul>
+          <li>Managed hosting and administration;</li>
+          <li>Integrations;</li>
+          <li>Analytics;</li>
+          <li>Moderation and workflow tools;</li>
+          <li>Advanced AI features;</li>
+          <li>Implementation; and</li>
+          <li>Support.</li>
+        </ul>
+        <p>
+          Organizations may also use or operate the open-source software themselves in accordance
+          with AGPL-3.0.
+        </p>
+        <p>
+          We intend for basic community exploration and contribution to remain available without
+          requiring every community member to pay. Final pricing and product boundaries have not
+          yet been set.
         </p>
       </ProseSection>
 
-      <ProseSection heading="How the company sustains itself">
+      <ProseSection heading="Advertising and personal information">
+        <p>Bitplaza does not currently sell personal information.</p>
         <p>
-          The community map is open. Bitplaza charges organizations for the software and services
-          that help them create, operate, and understand their communities: hosting,
-          administration, integrations, analytics, and advanced AI tools. Community members
-          explore and contribute for free.
+          The pre-launch website is not supported by advertising or paid placement. Waitlist
+          information is not used to determine how communities, businesses, organizations, or
+          people are ranked.
         </p>
         <p>
-          What that rules out, permanently: no advertising, no paid placement, and no sale of
-          personal data. Anything we ever publish about how people use Bitplaza will be aggregate
-          patterns across many people, never one person&apos;s behavior.
+          Our current information practices are described in the{" "}
+          <Link href={ROUTES.privacy}>Privacy Policy</Link>. If our business model or data
+          practices materially change, we will update the relevant policies before applying those
+          changes.
         </p>
       </ProseSection>
 
-      <ProseSection heading="What this website records">
+      <ProseSection heading="What the pre-launch website records">
         <p>
-          If you join the waitlist, we keep what you typed into the form: your email, what you
-          said you want to do, a referral code we generate, the code of whoever referred you if
-          anyone, and campaign tags if your link carried them. We use it to email you about early
-          access and to understand who is interested. We do not sell it, rent it, or share it.
+          When you join the waitlist, we may collect the information you submit, including:
+        </p>
+        <ul>
+          <li>Your name;</li>
+          <li>Your email address;</li>
+          <li>Information you provide about your interests or intended use;</li>
+          <li>Referral information; and</li>
+          <li>Campaign information included in the link you used.</li>
+        </ul>
+        <p>
+          We use this information to manage the waitlist, communicate about Bitplaza, understand
+          interest in the product, and prevent abuse.
         </p>
         <p>
-          If you are just reading, we measure anonymous usage. <strong>No cookies are set</strong>{" "}
-          and nothing is written to your browser&apos;s storage for measurement; the identifier
-          dies with the tab. The events we record are counts and categories (a page was viewed, a
-          territory was opened), never text you typed. The complete list is one file in the
-          source, and the code refuses to send anything not on it. No session recording, no
-          keystrokes, no mouse tracking.
+          The website and its service providers may also process limited technical and usage
+          information needed to operate, secure, and understand the site.
         </p>
         <p>
-          Your IP address is not stored by our analytics, and for the waitlist form we keep only a
-          one-way hash of it for a short window to stop spam. The switch in the footer turns
-          measurement off entirely, and Do Not Track or Global Privacy Control is honored without
-          you doing anything. There is no cookie banner because there are no cookies to consent
-          to.
+          The <Link href={ROUTES.privacy}>Privacy Policy</Link> provides the controlling
+          description of what information is collected, how it is used, and the choices available
+          to you.
+        </p>
+      </ProseSection>
+
+      <ProseSection heading="Your information">
+        <p>
+          You may contact us to ask what personal information we hold about you, correct it, leave
+          the waitlist, or request deletion.
         </p>
         <p>
-          Email us and we will send you everything we hold about you, or delete it. No explanation
-          required. The legal version of all this is the <Link href={ROUTES.privacy}>privacy
-          policy</Link>.
+          Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+        </p>
+        <p>
+          Some limited information may be retained where reasonably necessary for legal compliance,
+          security, fraud prevention, unsubscribe records, or protected backups.
         </p>
       </ProseSection>
 
       <ProseSection heading="Governance">
         <p>
-          The structure meant to make these commitments binding beyond goodwill is still being
-          settled. We would rather say that plainly than describe an arrangement that does not
-          exist yet, and we will publish it here when it is real.
+          Bitplaza is open source today, but its long-term project governance is still being
+          developed.
+        </p>
+        <p>
+          We are evaluating how maintainership, contributions, moderation, releases, stewardship,
+          and community decision-making should work as the project grows.
+        </p>
+        <p>
+          We will publish those rules when they are concrete enough to be tested and relied upon.
+        </p>
+        <p>
+          The AGPL-3.0 license already grants meaningful rights to use, inspect, modify, and share
+          the covered software. This page does not replace or modify those rights. The
+          repository’s license remains the controlling legal document.
         </p>
       </ProseSection>
     </ProsePage>

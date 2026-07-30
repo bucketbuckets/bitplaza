@@ -32,7 +32,7 @@ export const OPEN_SECTION = {
   ],
 
   architectureCta: { label: "View the architecture", href: ROUTES.open },
-  /** Set to the public repository URL when it exists. Null renders nothing. */
-  repoUrl: null as string | null,
+  /** The public repository. Was null until /open published it (2026-07-30). */
+  repoUrl: "https://github.com/bucketbuckets/bitplaza" as string | null,
   repoCtaLabel: "View the code",
 } as const;

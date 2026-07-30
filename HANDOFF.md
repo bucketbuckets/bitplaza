@@ -1016,3 +1016,26 @@ license notice") covers the repo's LICENSE file, so the documents can
 coexist — but whether to keep the AGPL repo public, change its license, or
 soften the /open copy is the owner's decision. Do not touch LICENSE, the
 repo visibility, or the Terms wording without them.
+
+## 23. Addendum — Open Source page + privacy policy rev 2 (2026-07-30)
+
+Two more owner documents published VERBATIM, one deploy:
+- **/open** is now the owner's "Open Source" page ("Last updated August 1,
+  2026"): public repo linked (github.com/bucketbuckets/bitplaza), AGPL-3.0
+  explained, and the old page's over-promises deliberately walked back into
+  stated intentions (CC BY-SA data promise gone; "no advertising,
+  permanently" now "not currently"). This RESOLVES the §22 Terms/AGPL
+  tension: the code is publicly AGPL and /open says so; the Terms'
+  express-license-notice carve-out does the legal work.
+- **/privacy** replaced with the owner's second revision (supersedes the
+  §21 version from earlier the same day): unnumbered sections, new
+  "Open-source software and personal information" section (AGPL does not
+  license the waitlist data), simplified cookies section, contact block
+  with the correct 11222 ZIP.
+- `OPEN_SECTION.repoUrl` is set (was null) per its own repo rule, so the
+  homepage "View the code" CTA now renders, wired to repo_link_clicked.
+
+**Minor copy tension, owner's call:** the homepage open band still says
+"Community knowledge is open — export, reuse, mirror" in the present tense;
+the new /open page deliberately says exports are intended and not yet
+finalized. Align the band's wording if that bothers anyone.
