@@ -17,7 +17,15 @@ and the reasoning; `design.md` has the decisions.
 > the two must-fix-before-traffic highs. §16 = the site went fully live +
 > working on joinbitplaza.com; the two security highs are deployed + verified.
 > §17 = the email/Resend decision, the double opt-in plan (not yet built), and
-> where the Resend install actually stands.
+> where the Resend install actually stands. §18 = Resend provisioned, domain
+> verified, email LIVE from hello@joinbitplaza.com. §19 = double opt-in BUILT,
+> independently reviewed, hardened, and DEPLOYED (read it before touching
+> signup/confirm). §20 = the homepage platforms band (Kids Table / CLCT /
+> Bitcoin Culture Hub). §21–§23 = the real legal pages: privacy (twice — rev 2
+> controls), terms, and the Open Source page that published the repo link and
+> resolved the Terms/AGPL tension. §24 = the 2026-07-30 polish batch: em-dash
+> purge, territory copy de-numbered, SEO/GEO audit + fixes, the hero
+> auto-tour, and Search Console status.
 
 ---
 
@@ -1039,3 +1047,59 @@ Two more owner documents published VERBATIM, one deploy:
 "Community knowledge is open — export, reuse, mirror" in the present tense;
 the new /open page deliberately says exports are intended and not yet
 finalized. Align the band's wording if that bothers anyone.
+
+## 24. Addendum — copy passes, SEO/GEO, auto-tour, Search Console (2026-07-30)
+
+**Em-dash purge (owner rule, standing):** every em dash in VISITOR-FACING
+copy was removed and rewritten (21 spots: content strings, all API error
+messages, terms prose, the application email, aria-labels; the tab-title
+template is now `Page · Bitplaza`). Code comments and dev-console strings
+keep theirs. Verified zero on every live page. WRITE NEW COPY WITHOUT EM
+DASHES — this is now a voice rule for the site, not just a one-time sweep.
+
+**Territory cards de-numbered (owner):** the eleven `activity` lines in
+`content/hub-preview.ts` are category labels now ("foundational texts ·
+thinkers · reading paths") — the fictional counts AND the "Illustrative
+preview. The map is being seeded now." disclaimer they required are both
+gone (homepage accordion + /bitcoin). The file's honesty rule was updated:
+no numbers until real live counts exist. The hero map's separate
+"Illustrative preview of the Bitcoin map" caption survives deliberately.
+
+**SEO/GEO audit ran; findings + what shipped:**
+- STRATEGIC, UNSOLVED: "Bitplaza" in search/AI answers currently resolves
+  to an unrelated PA shopping-app company (bitplaza.com, @BitplazaMobile,
+  LinkedIn/Crunchbase/ZoomInfo). Countermeasures are ongoing-type work:
+  consistent entity phrasing, own LinkedIn/Crunchbase profiles, backlinks
+  from bitcoinculturehub.com + clctibles.com.
+- Shipped fixes: www → apex 308 (host-based redirect in next.config.ts —
+  www was serving 200 duplicates); Organization schema enriched (logo,
+  sameAs → GitHub repo, parentOrganization → Bitcoin Culture Hub,
+  disambiguatingDescription for the name collision); sitemap `lastModified`
+  is now real per-route dates (BUMP THE DATE when you meaningfully change a
+  page — request-time `new Date()` taught crawlers to ignore it);
+  `public/llms.txt` added (curated AI-crawler summary, includes the
+  disambiguation and the platform family).
+- Technical posture was otherwise verified clean: full per-page metadata,
+  OG/twitter cards, one h1 per page, FAQPage + Organization JSON-LD,
+  correct noindex on /confirmed, static prerender = full content in HTML
+  for AI crawlers, robots allows them all.
+
+**Hero preview auto-tours (owner):** `map-preview.tsx` cycles Learn → Build
+→ Meet people → Find work every 1.5s (`TOUR_INTERVAL_MS`) until first real
+interaction. Guardrails that must survive any edit: pauses on hover AND
+focus (auto-advance must never move the radio selection under a keyboard
+user), stops permanently on selection, skips under prefers-reduced-motion,
+fires NO analytics (preview_engaged/path_selected are human-intent only),
+and the results live-region stays off while touring.
+
+**Search Console:** owner registered joinbitplaza.com as a Domain property
+(2026-07-30) and submitted the sitemap — NOTE: domain properties reject the
+relative "sitemap.xml" with "Invalid sitemap address"; the full URL
+https://joinbitplaza.com/sitemap.xml works. URL-inspection indexing
+requests for /, /bitcoin, /communities were advised; Bing Webmaster Tools
+(one-click GSC import) still pending. Site was not yet indexed anywhere as
+of this date (one day old).
+
+**Still-open owner items, gathered in one place:** double opt-in live E2E +
+the §19 window-casualty query; Kids Table's self-link (§20); the open-band
+present-tense copy tension (§23); Bing WMT; the brand-collision workstream.
