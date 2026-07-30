@@ -4,7 +4,6 @@ import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { BITCOIN_HUB_PAGE } from "@/content/bitcoin-hub-page";
 import {
-  DATA_DISCLAIMER,
   DEPTH_LEVELS,
   TERRITORIES,
 } from "@/content/hub-preview";
@@ -82,8 +81,6 @@ export default function BitcoinPage() {
               </li>
             ))}
           </ul>
-
-          <p className="mt-4 font-mono text-xs text-ink-faint">{DATA_DISCLAIMER}</p>
         </Container>
       </section>
 

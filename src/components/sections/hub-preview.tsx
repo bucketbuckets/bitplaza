@@ -6,7 +6,6 @@ import { Plus } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import {
-  DATA_DISCLAIMER,
   DEPTH_LEVELS,
   HUB_PREVIEW_SECTION,
   TERRITORIES,
@@ -97,8 +96,6 @@ export function HubPreview() {
               </Accordion.Item>
             ))}
           </Accordion.Root>
-
-          <p className="mt-4 font-mono text-xs text-ink-faint">{DATA_DISCLAIMER}</p>
         </div>
       </div>
     </Section>
