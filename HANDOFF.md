@@ -960,3 +960,29 @@ but two decisions were fixed in-session:
    email arrives. Re-submit within 10 min: same screen, NO new email, old
    link still works. After 10 min a re-submit sends a fresh link and the old
    one lands on "That link didn't work".
+
+## 20. Addendum — the platforms band (2026-07-30)
+
+**The homepage now features the platform family** (owner brief): Kids Table
+(talent development), CLCT (commerce), Bitcoin Culture Hub (community
+infrastructure). New band `#platforms` right after Capabilities — the
+narrative reads "what you can do → the platforms that do it → zoom into the
+first map". Files: `src/content/platforms.ts` (copy + owner-supplied URLs),
+`src/components/sections/platforms.tsx` (three raised cards — deliberately
+the only carded band on the page; prominence was the brief).
+
+Copy, naming (Kids Table / CLCT / Bitcoin Culture Hub), and placement were
+owner-approved via structured questions before writing. URLs are
+owner-supplied and verified live (both external domains answered 200):
+CLCT → clctibles.com, Bitcoin Culture Hub → bitcoinculturehub.com, and
+**Kids Table → joinbitplaza.com (a SELF-link — the owner gave this site's
+own URL; presumably no Kids Table site exists yet. Swap in its real domain
+in `platforms.ts` when one appears.)** External cards open in a new tab so
+the ecosystem links never navigate a visitor away from the waitlist;
+same-origin links (the current Kids Table card) stay in-tab. NEVER guess a
+domain for a card — a wrong guess is a stranger's site with our brand
+pointing at it.
+
+Deployed to production and verified serving (all three names + both
+external URLs present in the live HTML). No schema or API changes; the
+`vercel-build` migrate step no-opped as designed.
