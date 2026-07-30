@@ -702,9 +702,21 @@ configured (with a 5s verify timeout); when unconfigured it still passes (so the
 keyless launch keeps working) but logs loudly in production. Owner chose
 "enforce when configured"; it auto-hardens the moment `TURNSTILE_SECRET_KEY` +
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` are set. Covered by
-`tests/security.ip-turnstile.test.ts`. **These take effect only after the next
-prod deploy.** Still open: the mediums (referral farming, email relay — want
-double-opt-in), and setting Turnstile keys to fully enforce. Also still open: Resend + SPF/DKIM/DMARC
+`tests/security.ip-turnstile.test.ts`. **DEPLOYED and verified live** (deploy
+`dpl_9PJPq5Pf...`): 12 POSTs each with a different spoofed `X-Forwarded-For`
+hit the 10/window cap at request 11 (`429`), proving the header no longer
+rotates the bucket; req 1 returned `400` not `500`, confirming the rotated Neon
+password works at runtime. Still open: the mediums (referral farming, email
+relay — want double-opt-in), and setting Turnstile keys
+(`TURNSTILE_SECRET_KEY` + `NEXT_PUBLIC_TURNSTILE_SITE_KEY`) to move Turnstile
+from pass+warn to fully enforced.
+
+Also note: the Neon role password was rotated this session; production
+`DATABASE_URL`/`DIRECT_URL` were updated to the new pooled/direct strings and
+verified (`prisma migrate status` → up to date). The rotated password appeared
+in-session; a final dashboard-only rotation would fully scrub it. And the test
+row from §16 (`position 1`, `bitplaza-livetest-1785369196256@example.com`) is
+still pending the `TRUNCATE`/`DELETE` unless already run. Also still open: Resend + SPF/DKIM/DMARC
 (email confirmations are inert without `RESEND_API_KEY`), Turnstile + PostHog
 keys, the copy retense (§14) + `OPEN_SECTION.repoUrl` now that the repo is
 public, and the referral-advance policy.
