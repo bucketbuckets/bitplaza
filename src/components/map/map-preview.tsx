@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { TERRITORIES } from "@/content/hub-preview";
 import { MAP_PREVIEW, PREVIEW_GOALS, type PreviewGoal } from "@/content/map-preview";
@@ -9,6 +9,16 @@ import { cn } from "@/lib/utils";
 
 /**
  * The hero's interactive product preview: choose a goal, the map responds.
+ *
+ * Until someone chooses, the preview TOURS itself: goals advance on a timer
+ * so the four states demonstrate without a click. The tour pauses while the
+ * pointer or focus is inside the card (auto-advance must never move the
+ * radio selection under a keyboard user — that is also the WCAG pause
+ * requirement), stops permanently on a real selection, and never runs for
+ * prefers-reduced-motion. Auto-advance fires NO analytics; preview_engaged
+ * and path_selected remain records of human intent only. The result rows'
+ * live region stays off during the tour so screen readers are not narrated
+ * to every tick.
  *
  * Entirely frontend-driven from structured mock data in
  * src/content/map-preview.ts, with the illustrative disclaimer in visible
@@ -19,12 +29,30 @@ import { cn } from "@/lib/utils";
  * movement and a single tab stop for free, which is exactly the roving
  * behavior a custom tablist would need JS to fake.
  */
+
+const TOUR_INTERVAL_MS = 1500;
+
 export function MapPreview({ className }: { className?: string }) {
   const [goalId, setGoalId] = useState<string>(PREVIEW_GOALS[0].id);
+  const [touring, setTouring] = useState(true);
+  const [paused, setPaused] = useState(false);
   const groupName = useId();
   const goal: PreviewGoal = PREVIEW_GOALS.find((g) => g.id === goalId) ?? PREVIEW_GOALS[0];
 
+  useEffect(() => {
+    if (!touring || paused) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => {
+      setGoalId((current) => {
+        const index = PREVIEW_GOALS.findIndex((g) => g.id === current);
+        return PREVIEW_GOALS[(index + 1) % PREVIEW_GOALS.length].id;
+      });
+    }, TOUR_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [touring, paused]);
+
   const choose = (next: PreviewGoal) => {
+    setTouring(false);
     setGoalId(next.id);
     capture("preview_engaged", {
       choice: next.id as "learn" | "build" | "meet" | "work",
@@ -40,6 +68,10 @@ export function MapPreview({ className }: { className?: string }) {
         "flex flex-col gap-5 rounded-card border border-edge bg-raised p-5 shadow-soft sm:p-6",
         className,
       )}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
     >
       {/* Goal selector. */}
       <fieldset>
@@ -93,7 +125,10 @@ export function MapPreview({ className }: { className?: string }) {
       </div>
 
       {/* What lights up: one person, one resource, one action. */}
-      <ul className="flex flex-col divide-y divide-edge border-y border-edge" aria-live="polite">
+      <ul
+        className="flex flex-col divide-y divide-edge border-y border-edge"
+        aria-live={touring ? "off" : "polite"}
+      >
         <PreviewRow kind="Person" primary={goal.person.role} secondary={goal.person.note} />
         <PreviewRow kind={goal.resource.kind} primary={goal.resource.name} secondary="On the map" />
         <PreviewRow kind={goal.action.kind} primary={goal.action.name} secondary="One click away" />
