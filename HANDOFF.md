@@ -986,3 +986,15 @@ pointing at it.
 Deployed to production and verified serving (all three names + both
 external URLs present in the live HTML). No schema or API changes; the
 `vercel-build` migrate step no-opped as designed.
+
+## 21. Addendum — real privacy policy published (2026-07-30)
+
+The pre-counsel placeholder at /privacy (see §15's "noindex until counsel")
+is retired. The owner supplied the full policy text and it is published
+VERBATIM at /privacy — 14 sections, "Last updated: August 1, 2026" (the
+owner's date, two days post-dated at publish time), operator named as
+Bitcoin Culture Hub, contact team@houseofnaka.com. The noindex is removed;
+the page is now indexable. Do not edit the policy wording without the owner:
+it is a legal document, and every deviation is a commitment nobody reviewed.
+Two things flagged to the owner at publish: the §14 mailing address ZIP
+reads "NY 1122" (four digits, as supplied), and the post-dated timestamp.
