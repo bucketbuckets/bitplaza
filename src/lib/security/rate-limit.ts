@@ -23,11 +23,31 @@ export function rateLimitKey(ip: string, route: string): string {
   return createHash("sha256").update(`${ip}:${route}`).digest("hex");
 }
 
-/** The caller's IP as the platform reports it. Falls back to a shared bucket. */
+/**
+ * The caller's IP as the platform reports it. Falls back to a shared bucket.
+ *
+ * `x-real-ip` is set by the Vercel edge to the true client IP and cannot be
+ * spoofed by the caller, so it is the trusted source and takes precedence. A
+ * client CAN prepend arbitrary values to `x-forwarded-for`, so it is only a
+ * fallback, and then we take the RIGHTMOST entry — the hop the platform
+ * appends — never the leftmost (attacker-controlled) one. Reading the leftmost
+ * token let a script rotate the header per request and land in a fresh
+ * rate-limit bucket every time, defeating the throttle entirely.
+ */
 export function clientIp(request: Request): string {
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return request.headers.get("x-real-ip") ?? "unknown";
+  if (forwarded) {
+    const parts = forwarded
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (parts.length > 0) return parts[parts.length - 1];
+  }
+
+  return "unknown";
 }
 
 /** True when this request is allowed; false → the route answers 429. */
