@@ -11,7 +11,9 @@ export const metadata: Metadata = {
  * The real policy, replacing the pre-counsel placeholder (2026-07-30).
  *
  * The text is the owner's document, published VERBATIM — including the
- * "Last updated" date and the mailing address in §14. Do not edit, tighten,
+ * "Last updated" date. One correction, owner-sourced: the §14 ZIP arrived
+ * as "1122" and was completed to 11222 from the address block in the
+ * owner's Terms document (same session). Do not edit, tighten,
  * or "fix" the wording here without the owner: this page is a legal
  * document, and every deviation is a commitment nobody reviewed. The old
  * noindex is gone; a published policy has no reason to hide from indexing.
@@ -305,7 +307,7 @@ export default function PrivacyPage() {
           <br />
           Email: <ContactEmail />
           <br />
-          Mailing address: <strong>40 N 4th St., Brooklyn, NY 1122</strong>
+          Mailing address: <strong>40 N 4th St., Brooklyn, NY 11222</strong>
           <br />
           United States
         </p>

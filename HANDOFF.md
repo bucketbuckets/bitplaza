@@ -998,3 +998,21 @@ the page is now indexable. Do not edit the policy wording without the owner:
 it is a legal document, and every deviation is a commitment nobody reviewed.
 Two things flagged to the owner at publish: the §14 mailing address ZIP
 reads "NY 1122" (four digits, as supplied), and the post-dated timestamp.
+
+## 22. Addendum — real Terms of Use published (2026-07-30)
+
+Same treatment as §21: the /terms placeholder is retired and the owner's
+Terms of Use are published VERBATIM ("Last updated August 1, 2026",
+operator: Bitcoin Culture Hub, a Delaware corporation; Delaware governing
+law; contact block with 40 N 4th St., Brooklyn, NY 11222). noindex removed.
+The §21 privacy ZIP ("1122") was completed to 11222 from this document's
+address block.
+
+**FLAGGED TO OWNER, unresolved:** the Terms state "Bitplaza is not
+currently distributed under an open-source license" while this repo is
+PUBLIC under AGPL-3.0 (§15) and the /open page describes the open posture.
+The clause's carve-out ("unless specific material includes an express
+license notice") covers the repo's LICENSE file, so the documents can
+coexist — but whether to keep the AGPL repo public, change its license, or
+soften the /open copy is the owner's decision. Do not touch LICENSE, the
+repo visibility, or the Terms wording without them.
