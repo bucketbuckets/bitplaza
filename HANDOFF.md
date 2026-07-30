@@ -14,7 +14,10 @@ and the reasoning; `design.md` has the decisions.
 > §14 records the launch-requirements build (OG/icons/sitemap/robots/e2e/
 > Lighthouse/copy review) and the owner-run deploy that bakes it all. §15
 > records the security review, the repo going PUBLIC (+ AGPL-3.0 LICENSE), and
-> the two must-fix-before-traffic highs.
+> the two must-fix-before-traffic highs. §16 = the site went fully live +
+> working on joinbitplaza.com; the two security highs are deployed + verified.
+> §17 = the email/Resend decision, the double opt-in plan (not yet built), and
+> where the Resend install actually stands.
 
 ---
 
@@ -717,6 +720,69 @@ verified (`prisma migrate status` → up to date). The rotated password appeared
 in-session; a final dashboard-only rotation would fully scrub it. And the test
 row from §16 (`position 1`, `bitplaza-livetest-1785369196256@example.com`) is
 still pending the `TRUNCATE`/`DELETE` unless already run. Also still open: Resend + SPF/DKIM/DMARC
-(email confirmations are inert without `RESEND_API_KEY`), Turnstile + PostHog
-keys, the copy retense (§14) + `OPEN_SECTION.repoUrl` now that the repo is
-public, and the referral-advance policy.
+(email confirmations are inert without `RESEND_API_KEY` — see §17), Turnstile +
+PostHog keys, the copy retense (§14) + `OPEN_SECTION.repoUrl` now that the repo
+is public, and the referral-advance policy.
+
+---
+
+## 17. Addendum — email/Resend + double opt-in plan (still 2026-07-29)
+
+**Decision: use Resend for transactional email** (owner picked it over "skip
+sending" and "Zapier/CSV to a newsletter tool"). Reasoning captured for a
+resumer: capture is ALREADY done (every signup lands in Neon), so the only
+question was *sending*. The referral loop ("refer friends, move up the list")
+requires emailing each person their referral link, so a real transactional
+sender is needed. Zapier is NOT a substitute (generic sender, poor
+deliverability for a clickable confirm link); its only role would be piping the
+Neon list into Mailchimp/ConvertKit for later broadcasts (complementary, and the
+built-in CSV export already covers that). The `resend` package + React Email
+templates + `lib/email/send.ts` are already wired from earlier sessions — only
+the account/key/domain are missing.
+
+**Double opt-in — APPROVED, but NOT built yet.** It only functions once Resend
+is live (the confirmation email IS the mechanism), so it is deliberately
+sequenced after Resend. Planned scope when built:
+- Migration: a `confirmed` boolean + a single-use verification token on
+  `WaitlistUser` (currently every signup is instantly live).
+- New `GET /api/waitlist/confirm?token=…` route that flips `confirmed` true.
+- Signup creates a PENDING record; **position and referral credit are assigned
+  only on confirm** (this is what kills the two medium abuse issues from §15 —
+  referral farming and the email-relay — since fake/unowned addresses never
+  confirm).
+- A "confirm your signup" email (replaces the current instant "you're #N" one).
+- Success screen changes from "you're #N" to "check your inbox".
+Build it against the local Docker DB, test hard, then deploy — only after email
+is verified working.
+
+**Where the Resend install ACTUALLY stands: NOT provisioned.** Verified this
+session — there is **no `RESEND_API_KEY`** on production and the only integration
+resource on the project is `neon-bitplaza-signup` (Neon). The Vercel Marketplace
+install (`resend/resend-email`) was attempted and fought back repeatedly:
+- `--yes` is not a valid flag on this CLI (58.3.0); use `-e production -e preview`.
+- It requires **accepting Resend marketplace terms in the browser** first
+  (a `verification_uri`), then re-running.
+- **GOTCHA (extends §13's scope note):** `vercel integration add` does NOT
+  inherit the repo link's team — it defaults to `kyle-knights-projects` (WRONG).
+  Must pass `--scope bitcoin-culture-hub-19505dbf` or the resource + key land on
+  the wrong team.
+- After terms, it needs metadata: `-m domain=joinbitplaza.com -m region=us-east-1`
+  (us-east-1 matches the Neon/iad1 region). The full command is:
+  `vercel integration add resend/resend-email -e production -e preview -m domain=joinbitplaza.com -m region=us-east-1 --scope bitcoin-culture-hub-19505dbf`
+  — this last step had not completed as of this writing.
+
+**Recommended path forward (less friction than the Marketplace CLI):** set Resend
+up directly at **resend.com** — add domain `joinbitplaza.com`, copy its SPF/DKIM/
+bounce records into **Namecheap → Advanced DNS**, verify, create an API key, then
+`vercel env add RESEND_API_KEY production` (+ optionally `EMAIL_FROM`; the code
+falls back to `hello@joinbitplaza.com`, which must be on the verified domain) and
+redeploy. Then send a live test before building double opt-in.
+
+**DNS / nameserver warning:** do NOT accept Vercel's prompt to switch
+`joinbitplaza.com` nameservers to `ns1/ns2.vercel-dns.com`. The site is live on
+**Namecheap** nameservers (A `@ 76.76.21.21`, CNAME `www cname.vercel-dns.com`);
+switching would force re-creating every record and risk downtime. All email DNS
+(Resend SPF/DKIM) goes into **Namecheap**, not Vercel's domain DNS page. The
+Vercel team-domains page showing "No projects on this team are using this domain"
+is a wrong-team view artifact — the domain is connected under
+`bitcoin-culture-hub-19505dbf` and serving (verified `HTTP 200`).
