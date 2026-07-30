@@ -12,22 +12,24 @@ const BASE = SITE.url.replace(/\/+$/, "");
  */
 const ENTRIES: ReadonlyArray<{
   path: (typeof ROUTES)[keyof typeof ROUTES];
+  /** Date of the last MEANINGFUL content change. Bump it when you ship one —
+      a request-time `new Date()` here taught crawlers the field was noise. */
+  lastModified: string;
   changeFrequency: NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
   priority: number;
 }> = [
-  { path: ROUTES.home, changeFrequency: "weekly", priority: 1 },
-  { path: ROUTES.bitcoin, changeFrequency: "weekly", priority: 0.9 },
-  { path: ROUTES.communities, changeFrequency: "monthly", priority: 0.8 },
-  { path: ROUTES.open, changeFrequency: "monthly", priority: 0.6 },
-  { path: ROUTES.about, changeFrequency: "monthly", priority: 0.6 },
-  { path: ROUTES.questions, changeFrequency: "monthly", priority: 0.5 },
-  { path: ROUTES.privacy, changeFrequency: "yearly", priority: 0.3 },
-  { path: ROUTES.terms, changeFrequency: "yearly", priority: 0.3 },
+  { path: ROUTES.home, lastModified: "2026-07-30", changeFrequency: "weekly", priority: 1 },
+  { path: ROUTES.bitcoin, lastModified: "2026-07-30", changeFrequency: "weekly", priority: 0.9 },
+  { path: ROUTES.communities, lastModified: "2026-07-30", changeFrequency: "monthly", priority: 0.8 },
+  { path: ROUTES.open, lastModified: "2026-07-30", changeFrequency: "monthly", priority: 0.6 },
+  { path: ROUTES.about, lastModified: "2026-07-29", changeFrequency: "monthly", priority: 0.6 },
+  { path: ROUTES.questions, lastModified: "2026-07-29", changeFrequency: "monthly", priority: 0.5 },
+  { path: ROUTES.privacy, lastModified: "2026-07-30", changeFrequency: "yearly", priority: 0.3 },
+  { path: ROUTES.terms, lastModified: "2026-07-30", changeFrequency: "yearly", priority: 0.3 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
-  return ENTRIES.map(({ path, changeFrequency, priority }) => ({
+  return ENTRIES.map(({ path, lastModified, changeFrequency, priority }) => ({
     url: path === ROUTES.home ? BASE : `${BASE}${path}`,
     lastModified,
     changeFrequency,
