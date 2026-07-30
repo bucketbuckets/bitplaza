@@ -29,8 +29,12 @@ import type { WaitlistResponse, WaitlistSuccess } from "@/lib/waitlist/types";
  */
 export function WaitlistForm({
   onSuccess,
+  onPending,
 }: {
+  /** An already-confirmed address: straight to the celebration state. */
   onSuccess: (result: WaitlistSuccess, userType: string) => void;
+  /** A live signup or re-send: the "check your inbox" state (double opt-in). */
+  onPending: (email: string) => void;
 }) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
@@ -121,14 +125,27 @@ export function WaitlistForm({
       return;
     }
 
+    if (response.status === "pending") {
+      capture("waitlist_completed", {
+        user_type: values.userType,
+        has_referrer: Boolean(attribution.ref),
+        status: "pending",
+      });
+      // Attribution is recorded server-side; the referrer's credit itself
+      // lands when the emailed link is clicked.
+      if (attribution.ref) {
+        capture("referral_signup_completed", {});
+      }
+      onPending(values.email);
+      return;
+    }
+
     capture("waitlist_completed", {
       user_type: values.userType,
       has_referrer: Boolean(attribution.ref),
+      status: "confirmed",
       duplicate: response.duplicate,
     });
-    if (attribution.ref && !response.duplicate) {
-      capture("referral_signup_completed", {});
-    }
 
     onSuccess(response, values.userType);
   };

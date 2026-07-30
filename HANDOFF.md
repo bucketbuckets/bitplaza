@@ -786,3 +786,177 @@ switching would force re-creating every record and risk downtime. All email DNS
 Vercel team-domains page showing "No projects on this team are using this domain"
 is a wrong-team view artifact — the domain is connected under
 `bitcoin-culture-hub-19505dbf` and serving (verified `HTTP 200`).
+
+## 18. Addendum — Resend key provisioned; email is LIVE in prod (still 2026-07-29)
+
+**The owner created a Resend API key directly at resend.com** (the §17
+"recommended path"), and it is now wired everywhere. The key value is NOT in
+this repo (repo is public, §15) — it lives only in env stores:
+- Local: `.env.local` (`RESEND_API_KEY` + `EMAIL_FROM`), which is gitignored.
+- Vercel: `RESEND_API_KEY` and `EMAIL_FROM` added as Sensitive to
+  **Production and Preview** on `bitcoin-culture-hub-19505dbf/bitplaza`
+  (`vercel env add` from the repo dir DOES inherit the link's team, unlike
+  `vercel integration add` — the §17 scope gotcha applies to `ls`/`redeploy`
+  and friends when passing a project name, so keep `--scope
+  bitcoin-culture-hub-19505dbf` handy).
+- Production was **redeployed** (`vercel redeploy <current-prod-url> --scope …`)
+  and re-aliased to joinbitplaza.com (verified `HTTP 200` after). Signup
+  emails are therefore ACTIVE on the live site as of this redeploy.
+
+**FROM-ADDRESS STATE — RESOLVED (later same session):** initially only
+`mail.bitcoinculturehub.com` was verified in Resend and the free plan's
+1-domain limit blocked adding `joinbitplaza.com` (403). The owner **upgraded
+to Resend Pro**, `joinbitplaza.com` was registered via the API (domain id
+`40d59b33-a0e6-4006-aea8-f5a2ec1a5cb3`, us-east-1), its three DNS records
+(DKIM TXT `resend._domainkey`, SPF TXT `send`, MX `send` →
+feedback-smtp.us-east-1.amazonses.com prio 10) were added in **Namecheap →
+Advanced DNS** (MX lives in the separate "Mail Settings → Custom MX"
+section, not Host Records), and the domain is **`status: verified`** with
+sending enabled — all three records individually verified. `EMAIL_FROM` is
+now `Bitplaza <hello@joinbitplaza.com>` in Vercel Production + Preview and
+`.env.local` (matches the code default in `lib/email/send.ts`), and
+production was redeployed + re-aliased (HTTP 200). The earlier
+`mail.bitcoinculturehub.com` domain remains verified in the account and is
+no longer referenced by this project.
+
+**Live test send: CONFIRMED DELIVERED.** The owner ran the test send
+themselves (the session's permission layer blocks Claude from calling
+Resend's send endpoint directly — expect that in future sessions and hand
+the owner a one-liner instead). Resend email id
+`838482de-b373-4291-bb59-0e84a71c574f`, from `Bitplaza
+<hello@joinbitplaza.com>` to the owner's inbox, `last_event: "delivered"`.
+Email is verified working end-to-end → **double opt-in (§17 scope) is now
+unblocked** and is the next build. Per §17: build against the local Docker
+DB, test hard, deploy only after. **Update, later same session: BUILT — see §19.**
+
+## 19. Addendum — double opt-in BUILT, reviewed, and DEPLOYED (still 2026-07-29)
+
+**The §17 scope is implemented, review-hardened, and LIVE on production.**
+Green locally (`npm run verify`: typecheck + lint + 170 tests incl. the
+rewritten integration suite against docker `bitplaza-pg` + build), then
+deployed with the owner's approval — migration applied to prod Neon at
+02:29Z inside the Vercel build, deployment promoted ~90s later. Verified
+live: home 200, `/confirmed` renders, bogus-token confirm 303s to
+`/confirmed?s=invalid` against the prod DB. The owner approved the
+confirm-email design first (artifact preview).
+
+**How it works now (files to read in this order):**
+- `prisma/migrations/20260729212232_double_opt_in/` — adds `confirmedAt`,
+  `verifyTokenHash` (sha256 hex, unique), `verifyTokenExpiresAt`; makes
+  `position` NULLABLE and **drops the SERIAL default + sequence**. Existing
+  rows grandfathered `confirmedAt = createdAt`. Written by hand because
+  `prisma migrate dev` is interactive-only in this environment — pattern:
+  `prisma migrate diff --from-schema-datasource … --script`, edit, mkdir
+  `prisma/migrations/<ts>_name/migration.sql`, `prisma migrate deploy`.
+- `src/lib/waitlist/verify-token.ts` — token = 32 random bytes base64url on
+  the wire, sha256 at rest; `CONFIRM_TTL_DAYS = 3` feeds row expiry AND the
+  email copy so they cannot drift.
+- `src/lib/waitlist/signup.ts` — signups create PENDING rows (no position);
+  a pending duplicate ROTATES the token (old link dies) and answers exactly
+  like a fresh signup, so pending addresses are never disclosed; a confirmed
+  duplicate echoes position/link as before. `referredById` is recorded at
+  signup but **referralCount increments only at confirm**.
+- `src/lib/waitlist/confirm.ts` — one transaction: flip `confirmedAt`
+  (race-safe via `updateMany where confirmedAt: null`), assign position as
+  **MAX(position)+1 with a P2002 retry** (deliberately NOT a sequence:
+  Prisma kept wanting to drop the orphaned sequence in every future diff,
+  and MAX+1 keeps numbers dense — abandoned/bot signups no longer inflate
+  anyone's "#N"), credit the referrer. Confirmed rows KEEP their token hash
+  so a second click lands on "already", idempotently.
+- `GET /api/waitlist/confirm` — rate-limited (`waitlist-confirm` bucket),
+  303-redirects to `/confirmed?s=ok|invalid|expired|ratelimited|error`
+  (+ display-only `p`/`c`/`dup`), sends the WELCOME email (the existing
+  "you're #N" template) on a fresh confirm. Redirect base is `request.url`
+  so preview deployments stay on themselves.
+- Wire contract (`lib/waitlist/types.ts`): live submits answer
+  `{ok, status:"pending", resent}` — the form shows PendingState ("check
+  your inbox", `components/waitlist/pending-state.tsx`); confirmed
+  duplicates get the old success shape. `decoySuccess()` now mimics the
+  pending shape at 201 byte-for-byte — bots don't even get a fake position
+  to scrape anymore.
+- `/confirmed` page renders the celebration (reuses SuccessState — referral
+  share block and all) or calm invalid/expired/ratelimited/error copy.
+  NOTE: this Next version's `searchParams` is a **Promise** — await it.
+- Emails: signup → `emails/confirm-signup.tsx` (subject exported as
+  `confirmSignupSubject`); confirm → existing `waitlist-confirmation.tsx`.
+  The leader flow sends confirm email + application-received email.
+- CSV export: `confirmed`/`confirmed_at` columns appended; ordering is now
+  `position NULLS LAST, id` for stable cursor pagination with null positions.
+
+**Test surface worth knowing:** `tests/api.waitlist.integration.test.ts` was
+rewritten — it walks real tokens through the confirm route (tokens obtained
+by calling `createOrReturnWaitlistUser` directly, since only the hash is in
+the DB) and covers: token rotation killing old links, expiry, referral
+credit exactly-once, the TWO-CLICK RACE on one link (one credit), and
+concurrent confirms of different users (distinct positions via P2002 redraw).
+
+**Reviewed:** an independent code-review pass found 9 issues (2 high); all
+but two decisions were fixed in-session:
+- Re-sends are now THROTTLED: a pending re-submit inside
+  `RESEND_COOLDOWN_MS` (10 min, `lib/waitlist/verify-token.ts`) answers
+  identically but rotates nothing and sends nothing. Caps mailbombing,
+  Resend quota burn, and the "kill the victim's link before they click it"
+  grief. `SignupResult` is a discriminated union; a missing `verifyToken`
+  on outcome "resent" means throttled → routes send only when present.
+- The pending wire answer is now a CONSTANT (`201 {ok, status:"pending"}` —
+  no `resent` field, no status-code split), so whether an address is already
+  waiting is genuinely undisclosed. UI shows one "check your inbox" message.
+- Confirm URLs in emails are built from the REQUEST origin, not SITE.url, so
+  preview deployments email preview links instead of mutating prod.
+- Position allocation takes `pg_advisory_xact_lock(816451)` inside the
+  confirm transaction (P2002 redraw kept as backstop) — no retry exhaustion
+  under a burst.
+- `SuccessState` no longer reads `navigator.share` during render (it is
+  server-rendered on /confirmed now — was a hydration mismatch).
+- New `waitlist_confirmed` analytics event fires on /confirmed (ok state) —
+  confirm rate = waitlist_confirmed / waitlist_completed(status:pending).
+- Signup HEALS deploy-window rows: a pending row with NO token hash can only
+  have been written by old code during the migrate→deploy window; on
+  re-submit it gets a token and its `referredById` is NULLED (old code
+  already credited the referrer at signup — prevents double credit).
+
+**Open decisions from the review (not defects, flagged for the owner):**
+- GET /api/waitlist/confirm has side effects, so link-scanning mail proxies
+  (Outlook SafeLinks etc.) can auto-confirm without a human click. Common
+  practice, but it weakens consent evidence and partially reopens farming
+  via scanner-equipped disposable inboxes. Fix if wanted: interstitial —
+  GET redirects to /confirmed with a "Confirm my spot" button that POSTs.
+- No reaper for abandoned pending rows (data minimization): consider a cron
+  deleting `confirmedAt IS NULL AND createdAt < now() - 30 days`.
+- A pending re-submit deliberately updates nothing but the token — a new
+  referral code on re-submit is IGNORED (honoring it would let anyone attach
+  their code to someone else's pending signup).
+
+**How the deploy actually worked (differs from the plan — READ THIS):**
+- `vercel env pull` CANNOT fetch the Neon credentials: they are Sensitive-type
+  env vars and come back as `"[SENSITIVE]"`. Local `prisma migrate deploy`
+  against prod is therefore impossible without the owner's Neon dashboard.
+- Solution now wired in: a **`vercel-build` script in package.json** —
+  `prisma generate && ([ "$VERCEL_ENV" != "production" ] || prisma migrate deploy) && next build`.
+  Production builds regenerate the Prisma client AND apply pending
+  migrations (with the env only the build has); preview builds only
+  generate. Future schema changes deploy themselves — commit the migration
+  and ship.
+- **GOTCHA that caused a failed deploy first:** Vercel's build cache kept a
+  STALE generated Prisma client (from the pre-double-opt-in schema), so the
+  remote typecheck rejected `nulls: "last"` on `position`. Local builds
+  passed because `prisma generate` had been run by hand. The `prisma
+  generate` in vercel-build fixes this class permanently.
+- Deploy sequence used (minimizes the old-code-on-new-schema window):
+  `vercel deploy --prod --skip-domain --scope bitcoin-culture-hub-19505dbf`
+  (build runs the migration, deployment NOT aliased) → verify Ready →
+  `vercel promote <url> --scope …`. Window was ≈90 seconds.
+
+**Owner follow-ups still open:**
+1. Window-casualty detector (needs Neon dashboard or the CSV export with
+   ADMIN_EXPORT_TOKEN — rows created in the ~90s window, if any):
+   `SELECT id, email, "createdAt", "referredById" FROM waitlist_users
+    WHERE "confirmedAt" IS NULL AND "verifyTokenHash" IS NULL;`
+   Delete any hits (the address never confirmed; nothing is lost) and
+   decrement `referralCount` for any non-null `referredById` among them.
+   Signup-side healing (above) auto-defuses any that re-submit meanwhile.
+2. Live E2E: sign up with a real inbox → "check your inbox" → confirm email
+   from hello@joinbitplaza.com → click → /confirmed shows position → welcome
+   email arrives. Re-submit within 10 min: same screen, NO new email, old
+   link still works. After 10 min a re-submit sends a fresh link and the old
+   one lands on "That link didn't work".

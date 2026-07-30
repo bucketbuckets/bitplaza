@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+
+/** navigator.share never changes within a page's lifetime. */
+function subscribeNever() {
+  return () => {};
+}
 
 import { Button } from "@/components/ui/button";
 import { FieldError, Label, Textarea } from "@/components/ui/field";
@@ -24,11 +29,13 @@ export function SuccessState({
 }) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [copied, setCopied] = useState(false);
-
-  // Safe to read during render: this component only ever mounts after a
-  // submit, so it is never server-rendered and cannot mismatch on hydration.
-  const canNativeShare =
-    typeof navigator !== "undefined" && typeof navigator.share === "function";
+  // Server snapshot is false: /confirmed server-renders this component, so
+  // reading navigator during render would mismatch on hydration.
+  const canNativeShare = useSyncExternalStore(
+    subscribeNever,
+    () => typeof navigator.share === "function",
+    () => false,
+  );
 
   useEffect(() => {
     headingRef.current?.focus();

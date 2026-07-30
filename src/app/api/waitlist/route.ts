@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { WaitlistConfirmation, waitlistConfirmationText } from "@emails/waitlist-confirmation";
-import { labelsFor } from "@/lib/communities";
+import { ConfirmSignup, confirmSignupSubject, confirmSignupText } from "@emails/confirm-signup";
 import { sendEmail } from "@/lib/email/send";
 import { decoySuccess, isBotSubmission } from "@/lib/security/anti-bot";
 import { checkRateLimit, clientIp, pruneExpiredCounters } from "@/lib/security/rate-limit";
@@ -11,14 +10,17 @@ import { waitlistSubmissionSchema } from "@/lib/validation/waitlist";
 import { referralUrl } from "@/lib/waitlist/referral-code";
 import { createOrReturnWaitlistUser } from "@/lib/waitlist/signup";
 import type { WaitlistResponse } from "@/lib/waitlist/types";
+import { CONFIRM_TTL_DAYS } from "@/lib/waitlist/verify-token";
 
 /**
  * POST /api/waitlist — the one conversion this site exists for.
  *
  * Defence order (docs/00 §3, Stage 4): rate limit → honeypot/timing →
- * Turnstile → Zod → normalize → upsert-or-return-existing → referral
- * attribution → email → respond. Cheap checks run first; the database is
- * touched only after every gate has passed.
+ * Turnstile → Zod → normalize → upsert-or-return-existing → confirm email →
+ * respond. Cheap checks run first; the database is touched only after every
+ * gate has passed. Since double opt-in, the row starts PENDING — position
+ * and referral credit are granted by /api/waitlist/confirm when the emailed
+ * link is clicked.
  *
  * The email is sent after the row is committed and its failure is swallowed
  * inside sendEmail — an email outage must never fail a signup.
@@ -68,7 +70,8 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
       startedAt: typeof raw.startedAt === "number" ? raw.startedAt : undefined,
     })
   ) {
-    return NextResponse.json(decoySuccess(String(raw.email ?? ip), SITE.url));
+    // 201 + pending: byte-for-byte what a real first signup answers.
+    return NextResponse.json(decoySuccess(), { status: 201 });
   }
 
   const token = typeof raw.turnstileToken === "string" ? raw.turnstileToken : undefined;
@@ -95,7 +98,7 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
   const data = parsed.data;
 
   try {
-    const { user, duplicate } = await createOrReturnWaitlistUser({
+    const result = await createOrReturnWaitlistUser({
       email: data.email,
       firstName: data.firstName,
       userType: data.userType,
@@ -107,34 +110,47 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
       utmCampaign: data.utmCampaign,
     });
 
-    const link = referralUrl(SITE.url, user.referralCode);
+    // Already confirmed: echo their place back, exactly as before double
+    // opt-in. Position is always set on a confirmed row; ?? 0 is for types.
+    if (result.outcome === "duplicate") {
+      const { user } = result;
+      return NextResponse.json(
+        {
+          ok: true as const,
+          status: "confirmed" as const,
+          duplicate: true,
+          position: user.position ?? 0,
+          referralCode: user.referralCode,
+          referralUrl: referralUrl(SITE.url, user.referralCode),
+        },
+        { status: 200 },
+      );
+    }
 
-    if (!duplicate) {
-      const emailProps = {
+    // Pending: the confirm email carries the only copy of the plaintext
+    // token (absent = cooldown, a recent link is already in their inbox).
+    // The welcome email with position and referral link is sent by the
+    // confirm route once the click lands. The link is built on the origin
+    // that served THIS request so preview deployments email preview links.
+    if (result.verifyToken) {
+      const { user } = result;
+      const confirmProps = {
         firstName: user.firstName,
-        position: user.position,
-        referralUrl: link,
-        communityLabels: labelsFor(user.communities),
+        confirmUrl: `${new URL(request.url).origin}/api/waitlist/confirm?token=${result.verifyToken}`,
         siteUrl: SITE.url,
+        expiresInDays: CONFIRM_TTL_DAYS,
       };
       await sendEmail({
         to: user.emailRaw,
-        subject: `You're #${user.position} on the Bitplaza waitlist`,
-        react: WaitlistConfirmation(emailProps),
-        text: waitlistConfirmationText(emailProps),
+        subject: confirmSignupSubject,
+        react: ConfirmSignup(confirmProps),
+        text: confirmSignupText(confirmProps),
       });
     }
 
-    return NextResponse.json(
-      {
-        ok: true as const,
-        duplicate,
-        position: user.position,
-        referralCode: user.referralCode,
-        referralUrl: link,
-      },
-      { status: duplicate ? 200 : 201 },
-    );
+    // One constant answer for every pending outcome — fresh, re-send, or
+    // throttled — so whether an address was already waiting never leaks.
+    return NextResponse.json({ ok: true as const, status: "pending" as const }, { status: 201 });
   } catch (error) {
     console.error("waitlist: signup failed", error);
     return NextResponse.json(

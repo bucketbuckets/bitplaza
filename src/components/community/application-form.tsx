@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/field";
 import { COMMUNITIES_PAGE } from "@/content/communities-page";
+import { WAITLIST } from "@/content/waitlist";
 import { capture } from "@/lib/analytics/client";
 import { getAttribution } from "@/lib/attribution/capture";
 import {
@@ -54,6 +55,7 @@ export function splitTools(raw: string | undefined): string[] {
 export function ApplicationForm() {
   const CONTENT = COMMUNITIES_PAGE.form;
   const [result, setResult] = useState<ApplicationSuccess | null>(null);
+  const [pending, setPending] = useState<{ email: string } | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -67,8 +69,8 @@ export function ApplicationForm() {
   }, []);
 
   useEffect(() => {
-    if (result) successRef.current?.focus();
-  }, [result]);
+    if (result || pending) successRef.current?.focus();
+  }, [result, pending]);
 
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
@@ -147,8 +149,31 @@ export function ApplicationForm() {
     }
 
     capture("community_application_completed", { community_size: values.communitySize });
+    if (response.status === "pending") {
+      setPending({ email: values.email });
+      return;
+    }
     setResult(response);
   };
+
+  // Application received, address not yet confirmed (double opt-in): the
+  // application is in either way; the place in line waits on the email tap.
+  if (pending) {
+    return (
+      <div className="rounded-card border border-edge bg-raised p-8 shadow-soft">
+        <h2
+          ref={successRef}
+          tabIndex={-1}
+          className="font-display text-display-2 text-ink outline-none"
+        >
+          {COMMUNITIES_PAGE.success.heading}
+        </h2>
+        <p className="mt-4 text-body-lg text-ink-muted">{COMMUNITIES_PAGE.success.body}</p>
+        <p className="mt-3 text-ink">{WAITLIST.pending.body(pending.email)}</p>
+        <p className="mt-2 text-sm text-ink-muted">{WAITLIST.pending.spamNote}</p>
+      </div>
+    );
+  }
 
   if (result) {
     return (

@@ -4,6 +4,7 @@ import {
   CommunityApplicationReceived,
   communityApplicationReceivedText,
 } from "@emails/community-application-received";
+import { ConfirmSignup, confirmSignupSubject, confirmSignupText } from "@emails/confirm-signup";
 import { sendEmail } from "@/lib/email/send";
 import { decoySuccess, isBotSubmission } from "@/lib/security/anti-bot";
 import { checkRateLimit, clientIp } from "@/lib/security/rate-limit";
@@ -13,6 +14,7 @@ import { communityApplicationSchema } from "@/lib/validation/waitlist";
 import { referralUrl } from "@/lib/waitlist/referral-code";
 import { createOrReturnWaitlistUser } from "@/lib/waitlist/signup";
 import type { ApplicationResponse } from "@/lib/waitlist/types";
+import { CONFIRM_TTL_DAYS } from "@/lib/waitlist/verify-token";
 import { db } from "@/lib/db";
 
 /**
@@ -62,7 +64,8 @@ export async function POST(request: Request): Promise<NextResponse<ApplicationRe
       startedAt: typeof raw.startedAt === "number" ? raw.startedAt : undefined,
     })
   ) {
-    return NextResponse.json(decoySuccess(String(raw.email ?? ip), SITE.url));
+    // 201 + pending: byte-for-byte what a real first submission answers.
+    return NextResponse.json(decoySuccess(), { status: 201 });
   }
 
   const token = typeof raw.turnstileToken === "string" ? raw.turnstileToken : undefined;
@@ -89,7 +92,7 @@ export async function POST(request: Request): Promise<NextResponse<ApplicationRe
   const data = parsed.data;
 
   try {
-    const { user, duplicate } = await createOrReturnWaitlistUser({
+    const result = await createOrReturnWaitlistUser({
       email: data.email,
       firstName: data.firstName,
       userType: "COMMUNITY_LEADER",
@@ -99,6 +102,7 @@ export async function POST(request: Request): Promise<NextResponse<ApplicationRe
       utmMedium: data.utmMedium,
       utmCampaign: data.utmCampaign,
     });
+    const { user } = result;
 
     const existingApplication = await db.communityApplication.findUnique({
       where: { waitlistUserId: user.id },
@@ -141,11 +145,37 @@ export async function POST(request: Request): Promise<NextResponse<ApplicationRe
       });
     }
 
+    // Mirrors /api/waitlist: a pending applicant still needs the confirm
+    // click to hold a place in line — the application itself is received
+    // either way and reviewed by a person. Same constant pending answer,
+    // same cooldown on re-sends, same origin-derived link.
+    if (result.outcome !== "duplicate") {
+      if (result.verifyToken) {
+        const confirmProps = {
+          firstName: user.firstName,
+          confirmUrl: `${new URL(request.url).origin}/api/waitlist/confirm?token=${result.verifyToken}`,
+          siteUrl: SITE.url,
+          expiresInDays: CONFIRM_TTL_DAYS,
+        };
+        await sendEmail({
+          to: user.emailRaw,
+          subject: confirmSignupSubject,
+          react: ConfirmSignup(confirmProps),
+          text: confirmSignupText(confirmProps),
+        });
+      }
+      return NextResponse.json(
+        { ok: true as const, status: "pending" as const },
+        { status: 201 },
+      );
+    }
+
     return NextResponse.json(
       {
         ok: true as const,
-        duplicate,
-        position: user.position,
+        status: "confirmed" as const,
+        duplicate: true,
+        position: user.position ?? 0,
         referralCode: user.referralCode,
         referralUrl: referralUrl(SITE.url, user.referralCode),
       },

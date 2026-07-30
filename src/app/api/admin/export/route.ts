@@ -31,6 +31,8 @@ const HEADER = [
   "utm_campaign",
   "consent_at",
   "created_at",
+  "confirmed",
+  "confirmed_at",
 ] as const;
 
 function authorized(request: Request): boolean {
@@ -67,7 +69,9 @@ export async function GET(request: Request): Promise<Response> {
           const page = await db.waitlistUser.findMany({
             take: PAGE_SIZE,
             ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
-            orderBy: { position: "asc" },
+            // Pending rows have no position; they sort last, id as tiebreak
+            // so cursor pagination stays stable across pages.
+            orderBy: [{ position: { sort: "asc", nulls: "last" } }, { id: "asc" }],
             include: { referredBy: { select: { referralCode: true } } },
           });
           if (page.length === 0) break;
@@ -90,6 +94,8 @@ export async function GET(request: Request): Promise<Response> {
                   user.utmCampaign,
                   user.consentTimestamp.toISOString(),
                   user.createdAt.toISOString(),
+                  user.confirmedAt ? "true" : "false",
+                  user.confirmedAt?.toISOString(),
                 ]) + "\n",
               ),
             );

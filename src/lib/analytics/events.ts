@@ -43,7 +43,15 @@ export interface EventMap {
   waitlist_completed: {
     user_type: string;
     has_referrer: boolean;
-    /** True when the address was already on the list. */
+    /** Double opt-in: "pending" until the emailed link is clicked. */
+    status: "pending" | "confirmed";
+    /** Confirmed only: the address was already confirmed on the list. */
+    duplicate?: boolean;
+  };
+
+  /** The emailed link was clicked — the real conversion. Fired on /confirmed. */
+  waitlist_confirmed: {
+    /** True when the link had already been used (an "already" revisit). */
     duplicate: boolean;
   };
 

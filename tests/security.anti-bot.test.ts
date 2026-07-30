@@ -26,18 +26,9 @@ describe("isBotSubmission", () => {
 });
 
 describe("decoySuccess", () => {
-  it("is deterministic per seed, so probes see stable answers", () => {
-    const a = decoySuccess("bot@example.com", "https://bitplaza.com");
-    const b = decoySuccess("bot@example.com", "https://bitplaza.com");
-    expect(a).toEqual(b);
-  });
-
-  it("is shaped exactly like a real success", () => {
-    const decoy = decoySuccess("seed", "https://bitplaza.com");
-    expect(decoy.ok).toBe(true);
-    expect(decoy.duplicate).toBe(false);
-    expect(decoy.referralCode).toMatch(/^[0-9A-HJKMNP-TV-Z]{8}$/);
-    expect(decoy.referralUrl).toBe(`https://bitplaza.com/?ref=${decoy.referralCode}`);
-    expect(decoy.position).toBeGreaterThan(0);
+  it("is byte-for-byte the pending shape a real first signup answers", () => {
+    // Since double opt-in there is no variable data to fake — and no fake
+    // position or referral code left for a bot to scrape.
+    expect(decoySuccess()).toEqual({ ok: true, status: "pending" });
   });
 });

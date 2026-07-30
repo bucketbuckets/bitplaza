@@ -45,7 +45,7 @@ export const COMMUNITIES_PAGE = {
 
   success: {
     heading: "We got it!",
-    body: "Your application is in, and a person will read it. Allow a few days. A confirmation is on its way to your inbox, along with your place on the waitlist.",
+    body: "Your application is in, and a person will read it. Allow a few days.",
     positionLine: (position: number) =>
       `While you wait, you hold place ${position.toLocaleString("en-US")} in line.`,
   },

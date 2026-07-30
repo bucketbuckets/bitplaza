@@ -26,26 +26,12 @@ export function isBotSubmission(input: {
 }
 
 /**
- * A plausible, deterministic decoy for silent-success responses. Derived from
- * the input so repeated probes see consistent answers rather than a fresh
- * random value per attempt (which is itself a signal).
+ * The decoy for silent-success responses. Since double opt-in, every real
+ * live submit answers "check your inbox" with no variable data in the body,
+ * so the decoy is simply that — indistinguishable by construction, and the
+ * fake position/referral code the old decoy had to invent no longer exists
+ * to scrape.
  */
-export function decoySuccess(seedText: string, siteUrl: string) {
-  let hash = 5381;
-  for (let i = 0; i < seedText.length; i++) {
-    hash = ((hash << 5) + hash + seedText.charCodeAt(i)) >>> 0;
-  }
-  const alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-  let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += alphabet[(hash = (hash * 33 + 7) >>> 0) % alphabet.length];
-  }
-  const position = 1200 + (hash % 900);
-  return {
-    ok: true as const,
-    duplicate: false,
-    position,
-    referralCode: code,
-    referralUrl: `${siteUrl}/?ref=${code}`,
-  };
+export function decoySuccess() {
+  return { ok: true as const, status: "pending" as const };
 }

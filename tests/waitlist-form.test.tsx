@@ -4,9 +4,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { WaitlistForm } from "@/components/waitlist/waitlist-form";
 
+/** A live signup answers pending; the full success shape is reserved for
+    already-confirmed duplicates (and the /confirmed page). */
+const pending = { ok: true, status: "pending" };
+
 const success = {
   ok: true,
-  duplicate: false,
+  status: "confirmed",
+  duplicate: true,
   position: 42,
   referralCode: "ABCD2345",
   referralUrl: "https://bitplaza.com/?ref=ABCD2345",
@@ -34,9 +39,9 @@ describe("WaitlistForm", () => {
   });
 
   it("shows an error summary and field errors on an empty submit, without calling the API", async () => {
-    const fetchMock = mockFetch(success);
+    const fetchMock = mockFetch(pending);
     const user = userEvent.setup();
-    render(<WaitlistForm onSuccess={vi.fn()} />);
+    render(<WaitlistForm onSuccess={vi.fn()} onPending={vi.fn()} />);
 
     await user.click(screen.getByRole("button", { name: /get early access/i }));
 
@@ -50,16 +55,18 @@ describe("WaitlistForm", () => {
     expect(email).toHaveAttribute("aria-describedby", "wl-email-error");
   });
 
-  it("submits a valid form and hands the result and goal to onSuccess", async () => {
-    const fetchMock = mockFetch(success);
+  it("submits a valid form and hands the typed email to onPending (double opt-in)", async () => {
+    const fetchMock = mockFetch(pending);
+    const onPending = vi.fn();
     const onSuccess = vi.fn();
     const user = userEvent.setup();
-    render(<WaitlistForm onSuccess={onSuccess} />);
+    render(<WaitlistForm onSuccess={onSuccess} onPending={onPending} />);
 
     await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /get early access/i }));
 
-    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(success, "COMMUNITY_MEMBER"));
+    await waitFor(() => expect(onPending).toHaveBeenCalledWith("tom@example.com"));
+    expect(onSuccess).not.toHaveBeenCalled();
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
     expect(body.email).toBe("tom@example.com");
@@ -70,11 +77,25 @@ describe("WaitlistForm", () => {
     expect(typeof body.startedAt).toBe("number");
   });
 
-  it("maps the community-leader goal onto the existing enum", async () => {
-    const fetchMock = mockFetch(success);
+  it("hands an already-confirmed duplicate to onSuccess, not onPending", async () => {
+    mockFetch(success, 200);
+    const onPending = vi.fn();
     const onSuccess = vi.fn();
     const user = userEvent.setup();
-    render(<WaitlistForm onSuccess={onSuccess} />);
+    render(<WaitlistForm onSuccess={onSuccess} onPending={onPending} />);
+
+    await fillValidForm(user);
+    await user.click(screen.getByRole("button", { name: /get early access/i }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(success, "COMMUNITY_MEMBER"));
+    expect(onPending).not.toHaveBeenCalled();
+  });
+
+  it("maps the community-leader goal onto the existing enum", async () => {
+    const fetchMock = mockFetch(pending);
+    const onSuccess = vi.fn();
+    const user = userEvent.setup();
+    render(<WaitlistForm onSuccess={onSuccess} onPending={vi.fn()} />);
 
     await user.click(screen.getByRole("radio", { name: /map a community/i }));
     await user.type(screen.getByLabelText(/^your email$/i), "lead@example.com");
@@ -89,7 +110,7 @@ describe("WaitlistForm", () => {
     mockFetch({ ok: false, error: "Too many attempts from this connection." }, 429);
     const onSuccess = vi.fn();
     const user = userEvent.setup();
-    render(<WaitlistForm onSuccess={onSuccess} />);
+    render(<WaitlistForm onSuccess={onSuccess} onPending={vi.fn()} />);
 
     await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /get early access/i }));

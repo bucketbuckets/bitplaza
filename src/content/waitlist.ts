@@ -67,4 +67,39 @@ export const WAITLIST = {
       thanks: "Noted. This genuinely shapes what gets built first. Thank you.",
     },
   },
+
+  /** Post-submit, pre-confirm: the "check your inbox" state (double opt-in).
+      One message for every pending outcome — the response never says whether
+      the address was already waiting. */
+  pending: {
+    heading: "Check your inbox!",
+    body: (email: string) =>
+      `We sent a confirmation link to ${email}. Tap it and your place in line is locked in.`,
+    spamNote:
+      "Nothing after a few minutes? Check spam or promotions, and drag us to your inbox so your welcome email lands.",
+  },
+
+  /** The /confirmed page: where the emailed link lands. `ok` reuses the
+      success state; these cover everything that is not a celebration. */
+  confirm: {
+    invalid: {
+      heading: "That link didn't work.",
+      body: "It may have been cut short by your email app, or replaced by a newer one. Sign up again and a fresh link is on its way.",
+      cta: "Back to the signup",
+    },
+    expired: {
+      heading: "That link expired.",
+      body: (days: number) =>
+        `Confirmation links work for ${days} days. Sign up again with the same address and we'll send a fresh one.`,
+      cta: "Back to the signup",
+    },
+    ratelimited: {
+      heading: "Too many clicks at once.",
+      body: "Wait a few minutes, then tap the link in your email again.",
+    },
+    error: {
+      heading: "Something went wrong on our side.",
+      body: "Your click arrived but didn't complete. Tap the link in your email once more in a minute.",
+    },
+  },
 } as const;

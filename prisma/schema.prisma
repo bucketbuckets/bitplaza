@@ -46,10 +46,21 @@ model WaitlistUser {
   referredById       String?
   referredBy         WaitlistUser?  @relation("Referrals", fields: [referredById], references: [id])
   referrals          WaitlistUser[] @relation("Referrals")
+  /// Confirmed referrals only — incremented when the referee CONFIRMS, not
+  /// when they sign up. Farming unconfirmed addresses earns nothing.
   referralCount      Int      @default(0)
-  /// Postgres sequence. Rolled-back inserts leave gaps; nobody observes the
-  /// sequence, so this beats a transactional counter. A decision, not an accident.
-  position           Int      @unique @default(autoincrement())
+  /// Null until confirmed (double opt-in). The migration grandfathered every
+  /// pre-existing row as confirmed at its createdAt.
+  confirmedAt        DateTime?
+  /// sha256 hex of the emailed confirm token. The plaintext is never stored;
+  /// it survives confirmation so a second click can say "already confirmed".
+  verifyTokenHash    String?  @unique
+  verifyTokenExpiresAt DateTime?
+  /// Assigned on CONFIRM as MAX(position)+1 inside the confirm transaction
+  /// (lib/waitlist/confirm.ts retries on the unique constraint). Pending rows
+  /// hold no place in line, so numbers stay dense from here on; gaps below
+  /// the grandfathered rows are SERIAL-era artifacts and harmless.
+  position           Int?     @unique
   utmSource          String?
   utmMedium          String?
   utmCampaign        String?
