@@ -693,11 +693,18 @@ deploy shipped everything.
    `DIRECT_URL` on Vercel (`vercel env add … production --force`, pooled vs
    direct) and redeploy.
 
-**Before driving heavy traffic (from §15 security review — still open):** the
-two must-fix highs — spoofable `X-Forwarded-For` rate-limit key
-(`rate-limit.ts:22-31`) and Turnstile fail-open (`turnstile.ts:21,29-40`) —
-plus the mediums (referral farming, email relay). None block a soft launch, but
-they gate opening the funnel to volume. Also still open: Resend + SPF/DKIM/DMARC
+**Security must-fix highs — FIXED in code (commit `e0d6712`), pending deploy.**
+(1) `clientIp` (`rate-limit.ts`) now prefers Vercel's unspoofable `x-real-ip`,
+else the rightmost (platform-appended) `x-forwarded-for` entry — a client can no
+longer rotate the header to escape the throttle. (2) `verifyTurnstile`
+(`turnstile.ts`) now fails CLOSED on Cloudflare errors/timeouts when a key is
+configured (with a 5s verify timeout); when unconfigured it still passes (so the
+keyless launch keeps working) but logs loudly in production. Owner chose
+"enforce when configured"; it auto-hardens the moment `TURNSTILE_SECRET_KEY` +
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` are set. Covered by
+`tests/security.ip-turnstile.test.ts`. **These take effect only after the next
+prod deploy.** Still open: the mediums (referral farming, email relay — want
+double-opt-in), and setting Turnstile keys to fully enforce. Also still open: Resend + SPF/DKIM/DMARC
 (email confirmations are inert without `RESEND_API_KEY`), Turnstile + PostHog
 keys, the copy retense (§14) + `OPEN_SECTION.repoUrl` now that the repo is
 public, and the referral-advance policy.
