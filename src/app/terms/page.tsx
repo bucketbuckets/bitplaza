@@ -33,8 +33,8 @@ export default function TermsPage() {
           <li>Every email has an unsubscribe link, and using it removes you from the list.</li>
           <li>A place on the waitlist is not a promise of access, a price, or a launch date.</li>
           <li>
-            Anything shown as a preview of the product — including the numbers in the plaza builder
-            — is illustrative. It is not live data and does not describe anything that exists today.
+            Anything shown as a preview of the product, including the numbers in the plaza builder,
+            is illustrative. It is not live data and does not describe anything that exists today.
           </li>
         </ul>
       </ProseSection>

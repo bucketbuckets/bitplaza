@@ -57,7 +57,7 @@ export function CommunityApplicationReceived({
           <Text style={{ color: inkMuted, fontSize: 16, lineHeight: "25px", margin: "0 0 16px" }}>
             Your application to build a plaza for{" "}
             <span style={{ color: ink, fontWeight: 600 }}>{communityName}</span>{" "}
-            is in. A person — not a filter — reads every one, so it may take a
+            is in. A person, not a filter, reads every one, so it may take a
             few days.
           </Text>
 
@@ -87,7 +87,7 @@ export function communityApplicationReceivedText(
   return [
     `${props.firstName}, we got it.`,
     "",
-    `Your application to build a plaza for ${props.communityName} is in. A person — not a filter — reads every one, so it may take a few days.`,
+    `Your application to build a plaza for ${props.communityName} is in. A person, not a filter, reads every one, so it may take a few days.`,
     "",
     "If your community is a fit for an early plaza, we'll reply to this address to set up a conversation.",
     "",

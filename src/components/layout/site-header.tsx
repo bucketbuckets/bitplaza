@@ -47,7 +47,7 @@ export function SiteHeader() {
           <Link
             href={ROUTES.home}
             className="rounded-sm"
-            aria-label="Bitplaza — home"
+            aria-label="Bitplaza home"
             onClick={() => setMenuOpen(false)}
           >
             <Wordmark />

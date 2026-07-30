@@ -24,7 +24,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   if (!(await checkRateLimit(ip, "research-response"))) {
     return NextResponse.json(
-      { ok: false, error: "Too many attempts — wait a few minutes." },
+      { ok: false, error: "Too many attempts. Wait a few minutes." },
       { status: 429 },
     );
   }
@@ -34,7 +34,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      { ok: false, error: "The submission didn't arrive intact — try again." },
+      { ok: false, error: "The submission didn't arrive intact. Try again." },
       { status: 400 },
     );
   }
@@ -77,7 +77,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch (error) {
     console.error("research-response: save failed", error);
     return NextResponse.json(
-      { ok: false, error: "Something went wrong on our side — try again in a minute." },
+      { ok: false, error: "Something went wrong on our side. Try again in a minute." },
       { status: 500 },
     );
   }

@@ -184,7 +184,7 @@ function ResearchQuestion({ referralCode }: { referralCode: string }) {
       />
       {status === "error" ? (
         <FieldError id="wl-research-error">
-          That didn&apos;t send — try once more in a minute.
+          That didn&apos;t send. Try once more in a minute.
         </FieldError>
       ) : null}
       <div>

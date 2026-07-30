@@ -37,7 +37,7 @@ export function AnalyticsOptOut() {
       <p className="text-xs text-ink-faint">
         {optedOut
           ? "Anonymous usage measurement is off."
-          : "We measure anonymous usage — no cookies, no profile."}
+          : "We measure anonymous usage. No cookies, no profile."}
       </p>
       <button
         type="button"

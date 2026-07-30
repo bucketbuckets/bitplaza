@@ -12,7 +12,7 @@
 export const PLATFORMS_SECTION = {
   eyebrow: "The platforms",
   heading: "Built to serve communities, worldwide.",
-  lead: "Bitplaza is how global communities get what they need to thrive — across talent, commerce, and infrastructure.",
+  lead: "Bitplaza is how global communities get what they need to thrive, across talent, commerce, and infrastructure.",
 } as const;
 
 export interface Platform {
@@ -35,14 +35,14 @@ export const PLATFORMS: readonly Platform[] = [
     id: "clct",
     name: "CLCT",
     pillar: "Commerce",
-    body: "Curated commerce for the culture — collect and support work that matters.",
+    body: "Curated commerce for the culture. Collect and support work that matters.",
     href: "https://clctibles.com",
   },
   {
     id: "bitcoin-culture-hub",
     name: "Bitcoin Culture Hub",
     pillar: "Community infrastructure",
-    body: "The navigable home a community runs on — and the first plaza on the map.",
+    body: "The navigable home a community runs on, and the first plaza on the map.",
     href: "https://bitcoinculturehub.com",
   },
 ] as const;

@@ -35,7 +35,7 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
 
   if (!(await checkRateLimit(ip, "waitlist"))) {
     return NextResponse.json(
-      { ok: false as const, error: "Too many attempts from this connection — wait a few minutes and try again." },
+      { ok: false as const, error: "Too many attempts from this connection. Wait a few minutes and try again." },
       { status: 429 },
     );
   }
@@ -55,7 +55,7 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
     body = await request.json();
   } catch {
     return NextResponse.json(
-      { ok: false as const, error: "The submission didn't arrive intact — try again." },
+      { ok: false as const, error: "The submission didn't arrive intact. Try again." },
       { status: 400 },
     );
   }
@@ -77,7 +77,7 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
   const token = typeof raw.turnstileToken === "string" ? raw.turnstileToken : undefined;
   if (!(await verifyTurnstile(token, ip))) {
     return NextResponse.json(
-      { ok: false as const, error: "We couldn't confirm you're human — reload the page and try once more." },
+      { ok: false as const, error: "We couldn't confirm you're human. Reload the page and try once more." },
       { status: 400 },
     );
   }
@@ -154,7 +154,7 @@ export async function POST(request: Request): Promise<NextResponse<WaitlistRespo
   } catch (error) {
     console.error("waitlist: signup failed", error);
     return NextResponse.json(
-      { ok: false as const, error: "Something went wrong on our side — your details were not saved. Try again in a minute." },
+      { ok: false as const, error: "Something went wrong on our side. Your details were not saved. Try again in a minute." },
       { status: 500 },
     );
   }
